@@ -1,31 +1,24 @@
 {
   "schemaVersion": 1,
-  "id": "addon-template",
-  "version": "${version}",
-  "name": "Addon Template",
-  "description": "An addon template for Meteor Client addons.",
-  "authors": [
-    "seasnail"
-  ],
-  "contact": {
-    "sources": "https://github.com/MeteorDevelopment/meteor-addon-template"
-  },
-  "icon": "assets/template/icon.png",
-  "environment": "client",
+  "id": "ayquzaaddon",
+  "version": "1.0.0",
+  "name": "Grief Utility Addon",
+
+  "mixins": ["ayquza-addon.mixins.json"],
+  "description": "Meteor Addon by Ayquza",
+  "authors": ["Ayquza"],
+  "license": "MIT",
+  "icon": "assets/ayquzaaddon/icon.png",
+  "environment": "*",
   "entrypoints": {
     "meteor": [
-      "com.example.addon.AddonTemplate"
+      "com.ayquza.addon.AyquzaAddon"
     ]
   },
-  "mixins": [
-    "addon-template.mixins.json"
-  ],
   "custom": {
-    "meteor-client:color": "225,25,25"
+    "meteor-client:color": "255,150,255"
   },
   "depends": {
-    "java": ">=21",
-    "minecraft": ["${mc_version}", "1.21.7", "1.21.6"],
     "meteor-client": "*"
   }
 }

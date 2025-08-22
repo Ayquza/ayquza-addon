@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.ayquza.addon.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "ayquzaaddon.refmap.json",
+  "mixins": [],
+  "client": [
+    "MultiplayerScreenMixin",
+    "GameMenuScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
