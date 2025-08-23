@@ -45,7 +45,7 @@ public class QuickJoinScreen extends Screen {
 
         this.setInitialFocus(this.serverAddressField);
 
-        // Automatisch verbinden
+
         connectFromClipboard();
     }
 

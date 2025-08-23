@@ -22,7 +22,7 @@ public class MultiplayerScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("TAIL"))
     private void addQuickJoinButton(CallbackInfo ci) {
-        // Add Quick Join button in bottom left corner
+
         ButtonWidget quickJoinButton = ButtonWidget.builder(
                 Text.literal("Quick Join"),
                 button -> {

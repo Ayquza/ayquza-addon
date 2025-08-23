@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "name": "Grief Utility Addon",
 
+
   "mixins": ["ayquza-addon.mixins.json"],
   "description": "Meteor Addon by Ayquza",
   "authors": ["Ayquza"],

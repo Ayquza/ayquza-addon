@@ -20,12 +20,12 @@ public class GameMenuScreenMixin extends Screen {
         super(title);
     }
 
-    @Inject(method = "init", at = @At("TAIL"))
+    @Inject(method = "init()V", at = @At("TAIL"))
     private void addQuickJoinButton(CallbackInfo ci) {
-        // Only add button if we're in multiplayer
+
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.world != null && mc.getCurrentServerEntry() != null) {
-            // Add Quick Join button in bottom left corner
+
             ButtonWidget quickJoinButton = ButtonWidget.builder(
                     Text.literal("Quick Join"),
                     button -> {

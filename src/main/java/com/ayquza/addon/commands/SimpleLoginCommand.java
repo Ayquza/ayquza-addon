@@ -25,7 +25,7 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
 public class SimpleLoginCommand extends Command {
     public SimpleLoginCommand() {
-        super("login", "Re-logins you as a different cracked user / manage cracked accounts");
+        super("login", "Re-logins you as a different cracked user / manage cracked accounts", "l");
     }
 
     private boolean validateUsername(String username) {
@@ -109,6 +109,8 @@ public class SimpleLoginCommand extends Command {
                 return SINGLE_SUCCESS;
             }));
 
+
+
         // .login list
         builder.then(literal("list").executes(context -> {
             info("Cracked Accounts:");
@@ -186,7 +188,7 @@ public class SimpleLoginCommand extends Command {
                 return SINGLE_SUCCESS;
             })));
 
-        // .login clear (nur CrackedAccounts löschen)
+        // .login clear
         builder.then(literal("clear").executes(context -> {
             List<Account<?>> copy = new ArrayList<>();
             for (Account<?> a : Accounts.get()) copy.add(a);
@@ -210,7 +212,7 @@ public class SimpleLoginCommand extends Command {
             return SINGLE_SUCCESS;
         }));
 
-        // .login random  (wählt zufälligen CrackedAccount und loggt ein)
+        // .login random
         builder.then(literal("random").executes(context -> {
             List<CrackedAccount> crackedList = new ArrayList<>();
             for (Account<?> acc : Accounts.get()) {

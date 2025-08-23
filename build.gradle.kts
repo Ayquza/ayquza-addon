@@ -8,6 +8,13 @@ base {
     group = properties["maven_group"] as String
 }
 
+// Add this loom configuration
+loom {
+    mixin {
+        defaultRefmapName = "ayquza-addon.refmap.json"
+    }
+}
+
 repositories {
     maven {
         name = "meteor-maven"
