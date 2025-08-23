@@ -278,8 +278,7 @@ public class ClipboardLoginModule extends Module {
     public void onActivate() {
         keyPressed = false;
         System.out.println("[ClipboardLogin] Module activated!");
-        info("Clipboard Login activated - Hotkey: " + hotkey.get().toString());
-        info("Copy a username to clipboard and press the hotkey!");
+
 
         if (debugMode.get()) {
             info("Debug mode enabled");

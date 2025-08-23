@@ -143,10 +143,7 @@ public class AutoAccountsOnWhitelist extends Module {
             System.out.println("[AccountsHotkey] Global service started!");
         }
 
-        try {
-            info("Accounts Hotkey activated!");
-            info("Now works in menus too!");
-        } catch (Exception ignored) {}
+
     }
 
     @Override

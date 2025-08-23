@@ -28,7 +28,7 @@ public class MultiplayerScreenMixin extends Screen {
                 button -> {
                     MinecraftClient.getInstance().setScreen(new QuickJoinScreen(this));
                 })
-            .dimensions(193, this.height - 55, 120, 40) // x, y, width, height (bottom left)
+            .dimensions(200, this.height - 54, 120, 20) // x, y, width, height (bottom left)
             .build();
 
         this.addDrawableChild(quickJoinButton);
