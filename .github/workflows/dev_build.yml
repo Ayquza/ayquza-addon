@@ -27,7 +27,7 @@ jobs:
       - name: Rename Jar with run number
         run: |
           mkdir dist
-          cp build/libs/*.jar dist/myaddon-${{ github.run_number }}.jar
+          cp build/libs/*.jar dist/ayquzaaddon-${{ github.run_number }}.jar
 
       - name: Release
         uses: softprops/action-gh-release@v2
