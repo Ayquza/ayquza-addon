@@ -7,10 +7,7 @@ import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 import meteordevelopment.meteorclient.systems.hud.HudRenderer;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import net.minecraft.client.MinecraftClient;
-
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
+import org.lwjgl.glfw.GLFW;
 
 public class ClipboardHUD extends HudElement {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -58,7 +55,10 @@ public class ClipboardHUD extends HudElement {
 
     private String lastClipboardContent = "";
     private long lastUpdate = 0;
-    private static final long UPDATE_INTERVAL = 500; // Update every 500ms
+    private static final long UPDATE_INTERVAL = 1000; // Erhöht auf 1000ms um Spam zu reduzieren
+    private boolean clipboardError = false;
+    private long lastErrorTime = 0;
+    private static final long ERROR_COOLDOWN = 5000; // 5 Sekunden Cooldown nach Fehler
 
     // Background Settings
     private final Setting<Boolean> background = sgBackground.add(new BoolSetting.Builder()
@@ -98,41 +98,56 @@ public class ClipboardHUD extends HudElement {
     }
 
     private void calculateSize(HudRenderer renderer) {
-        if (lastClipboardContent.isEmpty()) {
-            String text = showTitle.get() ? "Clipboard: (empty)" : "(empty)";
-            setSize(renderer.textWidth(text) + border.get() * 2, renderer.textHeight() + border.get() * 2);
-            return;
-        }
+        String displayText;
 
-        String displayContent = truncateContent(lastClipboardContent);
-
-        if (multiLine.get() && displayContent.contains("\n")) {
-            String[] lines = displayContent.split("\n");
-            double maxWidth = 0;
-            int lineCount = lines.length;
-
-            if (showTitle.get()) {
-                maxWidth = Math.max(maxWidth, renderer.textWidth("Clipboard:"));
-                lineCount++;
-            }
-
-            for (String line : lines) {
-                maxWidth = Math.max(maxWidth, renderer.textWidth(line));
-            }
-
-            setSize(maxWidth + border.get() * 2, renderer.textHeight() * lineCount + border.get() * 2);
+        if (clipboardError) {
+            displayText = showTitle.get() ? "Clipboard: (non-text content)" : "(non-text content)";
+        } else if (lastClipboardContent.isEmpty()) {
+            displayText = showTitle.get() ? "Clipboard: (empty)" : "(empty)";
         } else {
-            String singleLine = displayContent.replace("\n", " ").replace("\r", "");
-            if (showTitle.get()) {
-                setSize(renderer.textWidth("Clipboard: " + singleLine) + border.get() * 2, renderer.textHeight() + border.get() * 2);
+            String displayContent = truncateContent(lastClipboardContent);
+
+            if (multiLine.get() && displayContent.contains("\n")) {
+                String[] lines = displayContent.split("\n");
+                double maxWidth = 0;
+                int lineCount = lines.length;
+
+                if (showTitle.get()) {
+                    maxWidth = Math.max(maxWidth, renderer.textWidth("Clipboard:"));
+                    lineCount++;
+                }
+
+                for (String line : lines) {
+                    maxWidth = Math.max(maxWidth, renderer.textWidth(line));
+                }
+
+                setSize(maxWidth + border.get() * 2, renderer.textHeight() * lineCount + border.get() * 2);
+                return;
             } else {
-                setSize(renderer.textWidth(singleLine) + border.get() * 2, renderer.textHeight() + border.get() * 2);
+                String singleLine = displayContent.replace("\n", " ").replace("\r", "");
+                displayText = showTitle.get() ? "Clipboard: " + singleLine : singleLine;
             }
         }
+
+        setSize(renderer.textWidth(displayText) + border.get() * 2, renderer.textHeight() + border.get() * 2);
     }
 
     @Override
     public void render(HudRenderer renderer) {
+        // Background rendern falls aktiviert
+        if (background.get()) {
+            renderer.quad(x, y, getWidth(), getHeight(), backgroundColor.get());
+        }
+
+        if (clipboardError) {
+            if (showTitle.get()) {
+                renderer.text("Clipboard: (non-text content)", x + border.get(), y + border.get(), titleColor.get(), true);
+            } else {
+                renderer.text("(non-text content)", x + border.get(), y + border.get(), contentColor.get(), true);
+            }
+            return;
+        }
+
         if (lastClipboardContent.isEmpty()) {
             if (showTitle.get()) {
                 renderer.text("Clipboard: (empty)", x + border.get(), y + border.get(), titleColor.get(), true);
@@ -148,11 +163,6 @@ public class ClipboardHUD extends HudElement {
             renderMultiLine(renderer, displayContent);
         } else {
             renderSingleLine(renderer, displayContent.replace("\n", " ").replace("\r", ""));
-        }
-
-        // Background rendern falls aktiviert
-        if (background.get()) {
-            renderer.quad(x, y, getWidth(), getHeight(), backgroundColor.get());
         }
     }
 
@@ -187,39 +197,53 @@ public class ClipboardHUD extends HudElement {
 
     private void updateClipboard() {
         long currentTime = System.currentTimeMillis();
+
+        // Skip update wenn wir vor kurzem einen Fehler hatten
+        if (clipboardError && currentTime - lastErrorTime < ERROR_COOLDOWN) {
+            return;
+        }
+
+        // Normal Update-Intervall prüfen
         if (currentTime - lastUpdate < UPDATE_INTERVAL) {
             return;
         }
         lastUpdate = currentTime;
 
         try {
-            // Check if we're in a headless environment
-            if (java.awt.GraphicsEnvironment.isHeadless()) {
-                lastClipboardContent = "(Headless environment)";
+            MinecraftClient mc = MinecraftClient.getInstance();
+            if (mc.getWindow() == null) {
+                lastClipboardContent = "";
+                clipboardError = false;
                 return;
             }
 
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            if (clipboard != null && clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
-                String content = (String) clipboard.getData(DataFlavor.stringFlavor);
-                if (content != null) {
-                    lastClipboardContent = content;
-                } else {
-                    lastClipboardContent = "";
-                }
-            } else {
-                lastClipboardContent = "(Non-text content)";
+            // Erst prüfen ob überhaupt Text in der Zwischenablage ist
+            long windowHandle = mc.getWindow().getHandle();
+
+            // Vorsichtig auf Clipboard zugreifen
+            String clipboardContent = null;
+            try {
+                clipboardContent = GLFW.glfwGetClipboardString(windowHandle);
+            } catch (Exception e) {
+                // Clipboard enthält wahrscheinlich Nicht-Text-Daten
+                clipboardError = true;
+                lastErrorTime = currentTime;
+                return;
             }
-        } catch (java.awt.HeadlessException e) {
-            lastClipboardContent = "(No GUI environment)";
-            System.err.println("[ClipboardHUD] HeadlessException: Running without GUI");
-        } catch (IllegalStateException e) {
-            // Clipboard wird von anderem Prozess verwendet
-            lastClipboardContent = "(Clipboard busy)";
+
+            if (clipboardContent != null) {
+                lastClipboardContent = clipboardContent;
+                clipboardError = false;
+            } else {
+                // Null bedeutet meist Nicht-Text-Daten in Zwischenablage
+                clipboardError = true;
+                lastErrorTime = currentTime;
+            }
+
         } catch (Exception e) {
-            // Detaillierte Fehlermeldung für Debugging
-            lastClipboardContent = "(Error: " + e.getClass().getSimpleName() + ")";
-            System.err.println("[ClipboardHUD] Error accessing clipboard: " + e.getMessage());
+            clipboardError = true;
+            lastErrorTime = currentTime;
+            // Keine Console-Ausgabe mehr für bekannte Clipboard-Probleme
         }
     }
 
@@ -229,5 +253,4 @@ public class ClipboardHUD extends HudElement {
         }
         return content.substring(0, maxLength.get() - 3) + "...";
     }
-
 }
