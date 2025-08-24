@@ -8,13 +8,13 @@ import meteordevelopment.meteorclient.systems.accounts.AccountType;
 import meteordevelopment.meteorclient.systems.accounts.Accounts;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.client.MinecraftClient;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClearCrackedAccounts extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
-
 
     private final Setting<Integer> clearInterval = sgGeneral.add(new IntSetting.Builder()
         .name("clear-interval-in-min")
@@ -26,7 +26,8 @@ public class ClearCrackedAccounts extends Module {
         .build()
     );
 
-    private int tickCounter = 0;
+    private long startTime;
+    private long lastClearTime;
 
     public ClearCrackedAccounts() {
         super(AyquzaAddon.CATEGORY, "clear-cracked-accounts", "Clears all cracked accounts from the Meteor account manager.");
@@ -34,19 +35,31 @@ public class ClearCrackedAccounts extends Module {
 
     @Override
     public void onActivate() {
-        tickCounter = 0;
+        startTime = System.currentTimeMillis();
+        lastClearTime = startTime;
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
-        tickCounter++;
+        // Prüfe jeden Tick (aber nur wenn wir in einer Welt sind)
+        checkAndClearAccounts();
+    }
 
-        // 20 ticks = 1 second, 1200 ticks = 1 minute
-        int ticksPerInterval = clearInterval.get() * 1200;
+    // Alternative: Verwende einen separaten Thread für kontinuierliche Zeitprüfung
+    private void checkAndClearAccounts() {
+        long currentTime = System.currentTimeMillis();
+        long intervalMillis = clearInterval.get() * 60 * 1000; // Minuten zu Millisekunden
 
-        if (tickCounter >= ticksPerInterval) {
+        if (currentTime - lastClearTime >= intervalMillis) {
             clearCrackedAccounts();
-            tickCounter = 0; // Reset counter for next interval
+            lastClearTime = currentTime;
+        }
+    }
+
+    // Zusätzliche Methode: Prüfung auch außerhalb von Ticks
+    public void checkClearAccounts() {
+        if (isActive()) {
+            checkAndClearAccounts();
         }
     }
 
@@ -62,12 +75,17 @@ public class ClearCrackedAccounts extends Module {
             }
 
             // Entferne die cracked accounts
-            for (Account account : accountsToRemove) {
-                Accounts.get().remove(account);
-            }
+            if (!accountsToRemove.isEmpty()) {
+                for (Account account : accountsToRemove) {
+                    Accounts.get().remove(account);
+                }
 
-            // Speichere die Änderungen
-            Accounts.get().save();
+                // Speichere die Änderungen
+                Accounts.get().save();
+
+                // Optional: Debug-Nachricht (nur für Testing)
+                // info("Cleared " + accountsToRemove.size() + " cracked accounts");
+            }
 
         } catch (Exception e) {
             // Silent error handling - no chat messages
@@ -76,6 +94,8 @@ public class ClearCrackedAccounts extends Module {
 
     @Override
     public void onDeactivate() {
-        tickCounter = 0;
+        // Reset timers
+        startTime = 0;
+        lastClearTime = 0;
     }
 }

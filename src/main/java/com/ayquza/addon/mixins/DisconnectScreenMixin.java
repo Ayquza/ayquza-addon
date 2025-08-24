@@ -22,7 +22,7 @@ public class DisconnectScreenMixin extends Screen {
     private void addQuickJoinButton(CallbackInfo ci) {
 
 
-        int buttonY = this.height / 2 - 5;
+        int buttonY = this.height / 2 - 7;
         int buttonX = this.width / 2 - 205;
 
         ButtonWidget quickJoinButton = ButtonWidget.builder(
