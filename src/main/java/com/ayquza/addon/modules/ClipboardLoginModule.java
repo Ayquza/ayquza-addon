@@ -194,7 +194,7 @@ public class ClipboardLoginModule extends Module {
 
         // Check for valid minecraft username characters
         if (!username.matches("^[a-zA-Z0-9_]+$")) {
-            error("Username contains invalid characters. Only letters, numbers and underscore allowed.");
+            error("Username contains invalid characters. Only letters, numbers and underscore allowed. COULD BE A MISTAKE TRY .LOGIN INSTEAD");
             return false;
         }
 
