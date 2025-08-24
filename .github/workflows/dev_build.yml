@@ -11,7 +11,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        # persist-credentials weglassen, sonst wird das Token nicht gesetzt
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -25,13 +24,17 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
+      - name: Rename Jar with run number
+        run: |
+          mkdir dist
+          cp build/libs/*.jar dist/myaddon-${{ github.run_number }}.jar
+
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: snapshot
-          name: Dev Build
+          tag_name: snapshot-${{ github.run_number }}
+          name: "Dev Build ${{ github.run_number }}"
           prerelease: true
-          files: |
-            build/libs/*.jar
+          files: dist/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
