@@ -23,7 +23,7 @@
   Useful if you get kicked for not being whitelisted—you can instantly open the menu and log in as another account.  
 
 - **Quick Join Buttons**  
-  Adds two Quick Join buttons (one in the Multiplayer Menu and one in the Game Menu) so you can join servers faster.  
+  Adds three Quick Join buttons (one in the Multiplayer Menu one in the Game Menu and one in every disconnect screen) so you can join servers faster.  
   These use the server address in your clipboard—just copy an IP and press Quick Join.  
 
 - **More things to come...**  
