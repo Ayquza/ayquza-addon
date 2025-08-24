@@ -1,15 +1,17 @@
 name: Publish Development Build
+
 on: push
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # <-- wichtig für Releases
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          persist-credentials: false
+        # persist-credentials weglassen, sonst wird das Token nicht gesetzt
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -26,9 +28,10 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: snapshot
           name: Dev Build
           prerelease: true
           files: |
-            ./build/libs/*.jar
+            build/libs/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
