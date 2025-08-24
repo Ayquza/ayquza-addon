@@ -1,27 +1,41 @@
-# Ayquza's Grief Utility Addon
+# Ayquza's Grief Utility Addon  
 
-# Features: 
-.Login Command with .l / .login 
+⚠️ **Important:** Big credits to @rbmkblaze for the login command!  
 
-.login help    .login list    .login set
+---
 
-.login random   .login remove
+## ✨ Features  
 
+- **Login Command**  
+  Log into cracked accounts with `.login (name)` or `.l (name)`  
+  Additional login-related commands:  
+  - `.login clear` → clears all cracked accounts from the account manager  
+  - `.login random`  
+  - `.login remove`  
+  - `.login list`  
 
-.login clear (only clears cracked accounts from account manager)
+- **Login Command Keybind Module**  
+  You can set a keybind in the module, and when you press it, the addon will automatically run `.login (whatever you have in your clipboard)`.  
+  Example: Copy a name, press the keybind, and you instantly log in as that account.  
 
-Keybind to instantly do the .login (name) Name = Whatever you have copied
+- **Account Manager Keybind Module**  
+  You can set a keybind in the module to open the Meteor Account Manager either in-game or in the main menu.  
+  Useful if you get kicked for not being whitelisted—you can instantly open the menu and log in as another account.  
 
+- **Quick Join Buttons**  
+  Adds three Quick Join buttons (one in the Multiplayer Menu one in the Game Menu and one in every disconnect screen) so you can join servers faster.  
+  These use the server address in your clipboard—just copy an IP and press Quick Join.  
 
-Quick Join Button in Multiplayer Menu & Ingame Menu
+- **More things to come...**  
 
-Meteor Account Manager hotkey to acces the gui via a keybind (Module)
+---
 
+## 💡 Contributing  
 
+Feel free to DM me on Discord **@Ayquza** if you have new ideas or find bugs.  
 
+---
 
+## ⚠️ Disclaimer  
 
-
-
-
-
+If you copy from this, please give me and @rbmkblaze proper credits.  
