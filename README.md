@@ -1,6 +1,7 @@
 # Ayquza's Grief Utility Addon  
 
-⚠️ **Important:** Big credits to @rbmkblaze for the login command!  
+⚠️ **Important:** This addon was made to be used with the **MLPI Scanner** — join us on discord.gg/mlpi.  
+Big credits to **@rbmkblaze** for the login command!
 
 ---
 
