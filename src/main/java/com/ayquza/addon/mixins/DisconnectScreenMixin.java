@@ -20,22 +20,23 @@ public class DisconnectScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("TAIL"))
     private void addQuickJoinButton(CallbackInfo ci) {
-        // Finde den Back-Button durch verschiedene Methoden
-        ButtonWidget backButton = findBackButton();
+        // Find the "Back to server list" button
+        ButtonWidget backButton = findBackToServerListButton();
 
         if (backButton != null) {
-            int quickJoinX = backButton.getX() - 105; // 100px Breite + 5px Abstand
+            // Position the Quick Join button to the left of the Back button
+            int quickJoinX = backButton.getX() - 105; // 100px width + 5px spacing
             int quickJoinY = backButton.getY();
 
-            // Stelle sicher, dass der Button nicht außerhalb des Bildschirms ist
+            // Make sure the button doesn't go off screen
             if (quickJoinX < 10) {
-                // Falls nicht genug Platz links, platziere rechts vom Back-Button
+                // If not enough space on the left, place to the right of the Back button
                 quickJoinX = backButton.getX() + backButton.getWidth() + 5;
 
-                // Falls auch rechts kein Platz, platziere über dem Back-Button
+                // If also no space on the right, place above the Back button
                 if (quickJoinX + 100 > this.width - 10) {
                     quickJoinX = backButton.getX();
-                    quickJoinY = backButton.getY() - 25; // 20px Höhe + 5px Abstand
+                    quickJoinY = backButton.getY() - 25; // 20px height + 5px spacing
                 }
             }
 
@@ -51,23 +52,36 @@ public class DisconnectScreenMixin extends Screen {
         }
     }
 
-    private ButtonWidget findBackButton() {
-        ButtonWidget backButton = null;
-
-        // Methode 1: Suche nach Text
+    private ButtonWidget findBackToServerListButton() {
+        // Method 1: Search by text content
         for (var element : this.children()) {
             if (element instanceof ButtonWidget button) {
-                String buttonText = button.getMessage().getString().toLowerCase();
+                String buttonText = button.getMessage().getString();
 
-                if (buttonText.contains("back") || buttonText.contains("server list") ||
-                    buttonText.contains("menu") || buttonText.contains("zurück") ||
-                    buttonText.contains("serverliste")) {
+                // Look for "Back to server list" or similar variations
+                if (buttonText.equals("Back to server list") ||
+                    buttonText.contains("Back to") ||
+                    buttonText.contains("server list") ||
+                    buttonText.contains("Server List")) {
                     return button;
                 }
             }
         }
 
-        // Methode 2: Suche nach Position (unterster Button)
+        // Method 2: Search for buttons containing "Back" or "Menu"
+        for (var element : this.children()) {
+            if (element instanceof ButtonWidget button) {
+                String buttonText = button.getMessage().getString().toLowerCase();
+
+                if (buttonText.contains("back") ||
+                    buttonText.contains("menu")) {
+                    return button;
+                }
+            }
+        }
+
+        // Method 3: Fallback - find the bottom-most button (usually the back button)
+        ButtonWidget backButton = null;
         int lowestY = -1;
         for (var element : this.children()) {
             if (element instanceof ButtonWidget button) {

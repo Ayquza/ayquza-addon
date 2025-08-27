@@ -23,22 +23,23 @@ public class GameMenuScreenMixin extends Screen {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.world != null && mc.getCurrentServerEntry() != null) {
 
-            // Finde den Disconnect-Button durch verschiedene Methoden
+            // Find the Disconnect button
             ButtonWidget disconnectButton = findDisconnectButton();
 
             if (disconnectButton != null) {
-                int quickJoinX = disconnectButton.getX() - 85; // 80px Breite + 5px Abstand
+                // Position the Quick Join button to the left of the Disconnect button
+                int quickJoinX = disconnectButton.getX() - 85; // 80px width + 5px spacing
                 int quickJoinY = disconnectButton.getY();
 
-                // Stelle sicher, dass der Button nicht außerhalb des Bildschirms ist
+                // Make sure the button doesn't go off screen
                 if (quickJoinX < 10) {
-                    // Falls nicht genug Platz links, platziere rechts vom Disconnect-Button
+                    // If not enough space on the left, place to the right of the Disconnect button
                     quickJoinX = disconnectButton.getX() + disconnectButton.getWidth() + 5;
 
-                    // Falls auch rechts kein Platz, platziere über dem Disconnect-Button
+                    // If also no space on the right, place above the Disconnect button
                     if (quickJoinX + 80 > this.width - 10) {
                         quickJoinX = disconnectButton.getX();
-                        quickJoinY = disconnectButton.getY() - 25; // 20px Höhe + 5px Abstand
+                        quickJoinY = disconnectButton.getY() - 25; // 20px height + 5px spacing
                     }
                 }
 
@@ -51,52 +52,36 @@ public class GameMenuScreenMixin extends Screen {
                     .build();
 
                 this.addDrawableChild(quickJoinButton);
-            } else {
-                // Fallback: Falls Disconnect-Button nicht gefunden, verwende ursprüngliche Position
-                ButtonWidget quickJoinButton = ButtonWidget.builder(
-                        Text.literal("Quick Join"),
-                        button -> {
-                            MinecraftClient.getInstance().setScreen(new QuickJoinScreen(this));
-                        })
-                    .dimensions(290, this.height - 300, 80, 20)
-                    .build();
-
-                this.addDrawableChild(quickJoinButton);
             }
         }
     }
 
     private ButtonWidget findDisconnectButton() {
-        ButtonWidget disconnectButton = null;
-
-        // Methode 1: Suche nach Text (verschiedene Sprachen)
+        // Method 1: Search by text content
         for (var element : this.children()) {
             if (element instanceof ButtonWidget button) {
                 String buttonText = button.getMessage().getString().toLowerCase();
 
-                // Verschiedene mögliche Texte für den Disconnect-Button
+                // Various possible texts for the Disconnect button
                 if (buttonText.contains("disconnect") ||
                     buttonText.contains("leave server") ||
-                    buttonText.contains("quit server") ||
-                    buttonText.contains("trennen") || // Deutsch
-                    buttonText.contains("server verlassen") || // Deutsch
-                    buttonText.contains("verbindung trennen") || // Deutsch
-                    buttonText.contains("beenden")) { // Deutsch
+                    buttonText.contains("quit server")) {
                     return button;
                 }
             }
         }
 
-        // Methode 2: Suche nach typischer Position des Disconnect-Buttons
-        // Im GameMenu ist der Disconnect-Button normalerweise in der unteren Hälfte
+        // Method 2: Search by typical position of Disconnect button
+        // In GameMenu, the Disconnect button is usually in the lower half
+        ButtonWidget disconnectButton = null;
         int centerY = this.height / 2;
 
         for (var element : this.children()) {
             if (element instanceof ButtonWidget button) {
-                // Disconnect-Button ist oft in der unteren Bildschirmhälfte und hat eine bestimmte Breite
+                // Disconnect button is often in the lower half of the screen
                 if (button.getY() > centerY) {
-                    // Prüfe ob es ein typischer Disconnect-Button sein könnte
-                    // (oft 200px breit und zentriert oder links/rechts positioniert)
+                    // Check if it could be a typical Disconnect button
+                    // (often 200px wide and centered or positioned left/right)
                     if (button.getWidth() >= 200 ||
                         (button.getX() > this.width / 4 && button.getX() < 3 * this.width / 4)) {
                         if (disconnectButton == null || button.getY() > disconnectButton.getY()) {
@@ -107,7 +92,7 @@ public class GameMenuScreenMixin extends Screen {
             }
         }
 
-        // Methode 3: Falls immer noch nicht gefunden, nimm den untersten Button
+        // Method 3: If still not found, take the bottom-most button
         if (disconnectButton == null) {
             int lowestY = -1;
             for (var element : this.children()) {
