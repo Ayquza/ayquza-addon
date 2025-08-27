@@ -2,10 +2,7 @@ package com.ayquza.addon;
 
 import com.ayquza.addon.commands.SimpleLoginCommand;
 import com.ayquza.addon.hud.ClipboardHUD;
-import com.ayquza.addon.modules.AutoAccountsOnWhitelist;
-import com.ayquza.addon.modules.ClearCrackedAccounts;
-import com.ayquza.addon.modules.ClipboardLoginModule;
-import com.ayquza.addon.modules.CopyServerIPKeybind;
+import com.ayquza.addon.modules.*;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
 import meteordevelopment.meteorclient.commands.Commands;
@@ -39,6 +36,8 @@ public class AyquzaAddon extends MeteorAddon {
         System.out.println("[AyquzaAddon] ClearCrackedAccounts module registered!");
         Modules.get().add(new CopyServerIPKeybind());
         System.out.println("[AyquzaAddon] CopyServerIPKeybind module registered!");
+        Modules.get().add(new DisconnectScreenshot());
+        System.out.println("[AyquzaAddon] DisconnectScreenshot module registered!");
 
 
         // Register HUD elements

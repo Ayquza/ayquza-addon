@@ -1,17 +1,17 @@
 package com.ayquza.addon.modules;
 
 import com.ayquza.addon.AyquzaAddon;
-import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.accounts.Account;
 import meteordevelopment.meteorclient.systems.accounts.AccountType;
 import meteordevelopment.meteorclient.systems.accounts.Accounts;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.orbit.EventHandler;
-import net.minecraft.client.MinecraftClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ClearCrackedAccounts extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -26,8 +26,7 @@ public class ClearCrackedAccounts extends Module {
         .build()
     );
 
-    private long startTime;
-    private long lastClearTime;
+    private ScheduledExecutorService scheduler;
 
     public ClearCrackedAccounts() {
         super(AyquzaAddon.CATEGORY, "clear-cracked-accounts", "Clears all cracked accounts from the Meteor account manager.");
@@ -35,31 +34,37 @@ public class ClearCrackedAccounts extends Module {
 
     @Override
     public void onActivate() {
-        startTime = System.currentTimeMillis();
-        lastClearTime = startTime;
+        // Erstelle einen neuen Scheduler
+        scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread thread = new Thread(r, "ClearCrackedAccounts-Timer");
+            thread.setDaemon(true); // Daemon Thread - wird beendet wenn Minecraft schließt
+            return thread;
+        });
+
+        // Starte den Timer - läuft unabhängig von Tick-Events
+        scheduler.scheduleAtFixedRate(
+            this::clearCrackedAccounts,
+            clearInterval.get(), // Initial delay
+            clearInterval.get(), // Repeat interval
+            TimeUnit.MINUTES
+        );
     }
 
-    @EventHandler
-    private void onTick(TickEvent.Pre event) {
-        // Prüfe jeden Tick (aber nur wenn wir in einer Welt sind)
-        checkAndClearAccounts();
-    }
-
-    // Alternative: Verwende einen separaten Thread für kontinuierliche Zeitprüfung
-    private void checkAndClearAccounts() {
-        long currentTime = System.currentTimeMillis();
-        long intervalMillis = clearInterval.get() * 60 * 1000; // Minuten zu Millisekunden
-
-        if (currentTime - lastClearTime >= intervalMillis) {
-            clearCrackedAccounts();
-            lastClearTime = currentTime;
-        }
-    }
-
-    // Zusätzliche Methode: Prüfung auch außerhalb von Ticks
-    public void checkClearAccounts() {
-        if (isActive()) {
-            checkAndClearAccounts();
+    @Override
+    public void onDeactivate() {
+        // Stoppe und bereinige den Scheduler
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdown();
+            try {
+                // Warte maximal 1 Sekunde auf das Beenden
+                if (!scheduler.awaitTermination(1, TimeUnit.SECONDS)) {
+                    scheduler.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                scheduler.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+            scheduler = null;
         }
     }
 
@@ -88,14 +93,16 @@ public class ClearCrackedAccounts extends Module {
             }
 
         } catch (Exception e) {
-            // Silent error handling - no chat messages
+            // Silent error handling - keine Chat-Nachrichten
+            e.printStackTrace(); // Für Debug-Zwecke
         }
     }
 
-    @Override
-    public void onDeactivate() {
-        // Reset timers
-        startTime = 0;
-        lastClearTime = 0;
+    // Optional: Methode um das Intervall zur Laufzeit zu ändern
+    public void updateInterval() {
+        if (isActive()) {
+            onDeactivate(); // Stoppe aktuellen Timer
+            onActivate();   // Starte mit neuem Intervall
+        }
     }
 }

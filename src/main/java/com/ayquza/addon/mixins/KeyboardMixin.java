@@ -21,10 +21,13 @@ public class KeyboardMixin {
 
     @Shadow @Final private MinecraftClient client;
     private static boolean keyPressed = false;
+    private static int cachedHotkey = -1;
+    private static long lastHotkeyUpdate = 0;
+    private static final long HOTKEY_CACHE_TIME = 5000; // 5 Sekunden Cache
 
     @Inject(method = "onKey", at = @At("HEAD"))
     private void onKeyPressed(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
-        // Hole den konfigurierten Hotkey aus dem Modul
+        // Hole den konfigurierten Hotkey (mit Cache)
         int hotkeyCode = getConfiguredHotkey();
         if (hotkeyCode == -1 || key != hotkeyCode) return;
 
@@ -43,12 +46,22 @@ public class KeyboardMixin {
     }
 
     private int getConfiguredHotkey() {
+        // Cache-System: Nur alle 5 Sekunden neu laden
+        long currentTime = System.currentTimeMillis();
+        if (cachedHotkey != -1 && (currentTime - lastHotkeyUpdate) < HOTKEY_CACHE_TIME) {
+            return cachedHotkey;
+        }
+
         try {
             // Try to find the module
             meteordevelopment.meteorclient.systems.modules.Modules modules =
                 meteordevelopment.meteorclient.systems.modules.Modules.get();
 
-            if (modules == null) return GLFW.GLFW_KEY_F6; // Fallback
+            if (modules == null) {
+                cachedHotkey = GLFW.GLFW_KEY_F6;
+                lastHotkeyUpdate = currentTime;
+                return cachedHotkey;
+            }
 
             // Search for our module
             for (meteordevelopment.meteorclient.systems.modules.Module module : modules.getAll()) {
@@ -59,8 +72,13 @@ public class KeyboardMixin {
                     // Get the configured hotkey
                     meteordevelopment.meteorclient.utils.misc.Keybind keybind = hotkeyModule.getHotkey();
                     if (keybind != null && keybind.isSet()) {
-                        System.out.println("[KeyboardMixin] Using configured hotkey: " + keybind.toString());
-                        return keybind.getValue();
+                        // Nur einmal loggen wenn sich der Hotkey ändert
+                        if (cachedHotkey != keybind.getValue()) {
+                            System.out.println("[KeyboardMixin] Hotkey updated to: " + keybind.toString());
+                        }
+                        cachedHotkey = keybind.getValue();
+                        lastHotkeyUpdate = currentTime;
+                        return cachedHotkey;
                     }
                 }
             }
@@ -69,7 +87,9 @@ public class KeyboardMixin {
         }
 
         // Fallback to F6
-        return GLFW.GLFW_KEY_F6;
+        cachedHotkey = GLFW.GLFW_KEY_F6;
+        lastHotkeyUpdate = currentTime;
+        return cachedHotkey;
     }
 
     private void handleHotkeyPress() {
