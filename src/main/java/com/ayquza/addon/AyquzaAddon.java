@@ -16,7 +16,6 @@ public class AyquzaAddon extends MeteorAddon {
 
     private static final SimpleLoginCommand LOGIN_COMMAND = new SimpleLoginCommand();
 
-
     @Override
     public void onInitialize() {
         ChatUtils.info("AyquzaAddon loaded!");
@@ -25,7 +24,6 @@ public class AyquzaAddon extends MeteorAddon {
         // Register commands
         Commands.add(LOGIN_COMMAND);
         MeteorClient.EVENT_BUS.subscribe(LOGIN_COMMAND);
-
 
         // Register modules
         Modules.get().add(new AutoAccountsOnWhitelist());
@@ -39,7 +37,6 @@ public class AyquzaAddon extends MeteorAddon {
         Modules.get().add(new DisconnectScreenshot());
         System.out.println("[AyquzaAddon] DisconnectScreenshot module registered!");
 
-
         // Register HUD elements
         Hud.get().register(ClipboardHUD.INFO);
         System.out.println("[AyquzaAddon] ClipboardHUD registered!");
@@ -51,6 +48,19 @@ public class AyquzaAddon extends MeteorAddon {
     public void onRegisterCategories() {
         Modules.registerCategory(CATEGORY);
         System.out.println("[AyquzaAddon] Category registered!");
+    }
+
+    // Add shutdown hook to cleanup resources when Minecraft closes
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("[AyquzaAddon] Addon is shutting down...");
+
+            // Cleanup ClearCrackedAccounts global scheduler
+            ClearCrackedAccounts.shutdownGlobalScheduler();
+            System.out.println("[AyquzaAddon] ClearCrackedAccounts scheduler cleaned up!");
+
+            System.out.println("[AyquzaAddon] Addon shutdown complete!");
+        }));
     }
 
     @Override
