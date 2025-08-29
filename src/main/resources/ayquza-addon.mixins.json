@@ -9,7 +9,9 @@
     "MultiplayerScreenMixin",
     "GameMenuScreenMixin",
     "KeyboardMixin",
-    "DisconnectScreenMixin"
+    "DisconnectScreenMixin",
+    "ClipboardConnectKeyboardMixin"
+
 
   ],
   "injectors": {
