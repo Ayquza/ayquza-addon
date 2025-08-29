@@ -1,50 +1,88 @@
 # Ayquza's Grief Utility Addon  
 
-⚠️ **Important:** This addon was made to be used with the **MLPI Scanner** — join us on discord.gg/mlpi.  
-Big credits to **@rbmkblaze** for the login command!
+⚠️ **Important:** This addon was made to be used with the **MLPI Scanner** — join us on [discord.gg/mlpi](https://discord.gg/mlpi).  
+Big credits to **[@rbmkblaze](https://github.com/rbmkblaze)** for the login command!  
 
 ---
 
 ## ✨ Features  
 
-- **Login Command**  
-  Log into cracked accounts with `.login (name)` or `.l (name)`  (**Auto Reconnects you**)
-  Additional login-related commands:  
-  - `.login clear` → clears all cracked accounts from the account manager  
-  - `.login random`  
-  - `.login remove`  
-  - `.login list`  
+### 🔑 Login Command  
+Log into cracked accounts with:  
+- `.login (name)`  
+- `.l (name)`  
 
-- **Login Command Keybind Module**  
-  You can set a keybind in the module, and when you press it, the addon will automatically run `.login (whatever you have in your clipboard)`.  
-  Example: Copy a name, press the keybind, and you instantly log in as that account.
+(**Auto Reconnects you**)  
 
-  *Option to Autoreconnect in Module* | Enabled by default
+Additional login-related commands:  
+- `.login clear` → clears all cracked accounts from the account manager  
+- `.login random`  
+- `.login remove`  
+- `.login list`  
 
-- **Account Manager Keybind Module**  
-  You can set a keybind in the module to open the Meteor Account Manager either in-game or in the main menu.  
-  Useful if you get kicked for not being whitelisted—you can instantly open the menu and log in as another account.  
+---
 
-- **Quick Join Buttons**  
-  Adds three Quick Join buttons (one in the Multiplayer Menu one in the Game Menu and one in every disconnect screen) so you can join servers faster.  
-  These use the server address in your clipboard—just copy an IP and press Quick Join.  
+### ⌨️ Login Command Keybind Module  
+- Set a keybind in the module.  
+- When pressed, the addon will automatically run `.login (clipboard content)`.  
 
-- **Disconnect Screenshot Module**
-  Automatically saves a screenshot **a few frames before you get disconnected** into a dedicated subfolder inside your screenshots directory. (can customize in module)  
-  Perfect for situations like **server renovations**, where the server closes before you can take a manual screenshot.  
+**Example:** Copy a name → press the keybind → instantly log in as that account.  
 
-  *Works about 80–90% of the time :3*
+*Autoreconnect option included (enabled by default).*  
 
-- **More things to come...**   pls give me suggestions <3
+---
+
+### 👤 Account Manager Keybind Module  
+- Set a keybind to open the Meteor Account Manager in-game or in the main menu.  
+- Useful if you get kicked for not being whitelisted → instantly open the menu and log in as another account.  
+
+---
+
+### ⚡ Quick Join Buttons  
+- Adds **three Quick Join buttons** (Multiplayer Menu, Game Menu, Disconnect Screen).  
+- Uses the server address in your clipboard.  
+- Just copy an IP → press Quick Join → instantly connect.  
+
+---
+
+### ⌨️ Quick Join Keybind Module  
+- Set a keybind in the module.  
+- When pressed, the addon automatically connects you to the server with the IP from your clipboard.  
+
+**Example:** Copy an IP → press the keybind → instantly connect.  
+
+---
+
+### 📸 Disconnect Screenshot Module  
+- Automatically saves a screenshot **a few frames before you get disconnected**.  
+- Stored in a dedicated subfolder inside your screenshots directory (customizable).  
+- Perfect for situations like **server renovations**, where the server closes too quickly for a manual screenshot.  
+
+ *Should work 100% of the time now :3*  
+
+---
+
+### 🧹 Clear Cracked Account Module  
+- Clears all cracked accounts from the Meteor Account Manager.  
+- No more scrolling when adding a new account → also cleaner!  
+
+---
+
+### 🔹 Small Extras  
+- Copy Server IP Module  
+- Current Clipboard HUD  
+
+---
+
+### 🚀 More things to come...  
+*Please give me suggestions <3*  
 
 ---
 
 ## 💡 Contributing  
-
 Feel free to DM me on Discord **@Ayquza** if you have new ideas or find bugs.  
 
 ---
 
 ## ⚠️ Disclaimer  
-
-If you copy from this, please give me and @rbmkblaze proper credits.  
+If you copy from this, please give me and **@rbmkblaze** proper credits.  
