@@ -3,32 +3,42 @@ name: 🚀 Multi-Version Release
 on:
   push:
     tags:
-      - 'v*'           # Nur bei Version-Tags (v1.2.3)
-  workflow_dispatch:   # Manueller Trigger
+      - 'v*'           # Triggert bei Tags wie v1.6, v1.0.0, etc.
+  workflow_dispatch:   # Manueller Trigger für Tests
     inputs:
       version:
-        description: 'Version (z.B. 1.2.3)'
+        description: 'Version 1.6'
         required: true
         type: string
 
 jobs:
+  debug-info:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Event Info
+        run: |
+          echo "Event Name: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "Tag Name: ${{ github.ref_name }}"
+          echo "Repository: ${{ github.repository }}"
+
   build-and-release:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         minecraft_version: ["1.21.6", "1.21.7", "1.21.8"]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-      
+
       - name: Get version
         id: version
         run: |
@@ -38,15 +48,20 @@ jobs:
             # Remove 'v' prefix from tag
             echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
           fi
-      
+          echo "Detected version: ${GITHUB_REF#refs/tags/v}"
+
       - name: Update gradle.properties for MC ${{ matrix.minecraft_version }}
         run: |
+          # Debug: Show original file
+          echo "=== Original gradle.properties ==="
+          cat gradle.properties
+
           # Update alle relevanten Properties für die MC Version
           sed -i "s/minecraft_version=.*/minecraft_version=${{ matrix.minecraft_version }}/" gradle.properties
           sed -i "s/mod_version=.*/mod_version=${{ steps.version.outputs.version }}/" gradle.properties
           sed -i "s/archives_base_name=.*/archives_base_name=AyquzasGriefUtilityAddon-${{ matrix.minecraft_version }}/" gradle.properties
-          
-          # Update yarn_mappings für entsprechende MC Version (falls nötig)
+
+          # Update yarn_mappings für entsprechende MC Version
           case "${{ matrix.minecraft_version }}" in
             "1.21.6")
               yarn_version="1.21.6+build.1"
@@ -58,64 +73,63 @@ jobs:
               yarn_version="1.21.8+build.1"
               ;;
           esac
-          
+
           sed -i "s/yarn_mappings=.*/yarn_mappings=$yarn_version/" gradle.properties
-          
-          # Zeige finale Konfiguration
-          echo "=== Finale gradle.properties für MC ${{ matrix.minecraft_version }} ==="
+
+          # Debug: Show updated file
+          echo "=== Updated gradle.properties für MC ${{ matrix.minecraft_version }} ==="
           cat gradle.properties
-      
+
       - name: Build with Gradle
         run: |
           chmod +x gradlew
-          ./gradlew build
-      
-      - name: Rename built JAR
+          ./gradlew clean build --info
+
+      - name: Find and rename built JAR
         run: |
-          # Finde die gebaute JAR-Datei (sollte jetzt den richtigen Namen haben)
+          echo "=== Searching for built JARs ==="
+          find build/libs -name "*.jar" -type f
+
+          # Finde die gebaute JAR-Datei
           JAR_FILE=$(find build/libs -name "AyquzasGriefUtilityAddon-${{ matrix.minecraft_version }}-*.jar" -not -name "*-sources.jar" -not -name "*-dev.jar" | head -1)
+
           if [ -n "$JAR_FILE" ]; then
-            # Behalte den Originalnamen oder erstelle aussagekräftigen Namen
             NEW_NAME="AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc${{ matrix.minecraft_version }}.jar"
             cp "$JAR_FILE" "$NEW_NAME"
             echo "JAR_NAME=$NEW_NAME" >> $GITHUB_ENV
-            echo "Erstellt: $NEW_NAME (von $JAR_FILE)"
+            echo "✅ Erstellt: $NEW_NAME (von $JAR_FILE)"
+            ls -la "$NEW_NAME"
           else
-            echo "Keine JAR-Datei gefunden! Verfügbare Dateien:"
+            echo "❌ Keine JAR-Datei gefunden! Verfügbare Dateien:"
             find build/libs -name "*.jar"
             exit 1
           fi
-          # Finde die gebaute JAR-Datei
-          JAR_FILE=$(find build/libs -name "*.jar" -not -name "*-sources.jar" -not -name "*-dev.jar" | head -1)
-          if [ -n "$JAR_FILE" ]; then
-            # Erstelle aussagekräftigen Dateinamen
-            NEW_NAME="meteor-addon-v${{ steps.version.outputs.version }}-mc${{ matrix.minecraft_version }}.jar"
-            cp "$JAR_FILE" "$NEW_NAME"
-            echo "JAR_NAME=$NEW_NAME" >> $GITHUB_ENV
-          else
-            echo "Keine JAR-Datei gefunden!"
-            exit 1
-          fi
-      
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: addon-mc${{ matrix.minecraft_version }}
           path: ${{ env.JAR_NAME }}
-  
+
   create-release:
     needs: build-and-release
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    
+
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
-      
+
+      - name: List downloaded files
+        run: |
+          echo "=== Downloaded artifacts ==="
+          find . -name "*.jar" -type f
+          ls -la
+
       - name: Get version
         id: version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-      
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -123,28 +137,17 @@ jobs:
           name: "🎯 AyquzasGriefUtilityAddon v${{ steps.version.outputs.version }}"
           body: |
             ## 🚀 AyquzasGriefUtilityAddon v${{ steps.version.outputs.version }}
-            
+
             **Unterstützte Minecraft Versionen:**
             - ✅ Minecraft 1.21.6 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.6.jar`
             - ✅ Minecraft 1.21.7 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.7.jar`
             - ✅ Minecraft 1.21.8 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.8.jar`
-            
+
             **📦 Installation:**
             1. Lade die **passende** `.jar` Datei für deine Minecraft Version herunter
             2. Platziere sie in deinem `mods` Ordner
             3. Starte Minecraft mit **Fabric Loader** + **Meteor Client**
-            
-            **⚡ Features:**
-            Grief Utility Tools für Meteor Client
-            
-            **🔧 Requirements:**
-            - Minecraft (entsprechende Version)
-            - Fabric Loader 0.16.14+
-            - Meteor Client
-            
-            ---
-            💡 **Development Builds** findest du [hier](https://github.com/${{ github.repository }}/releases?q=prerelease%3Atrue)
           files: |
-            **/meteor-addon-*.jar
+            **/AyquzasGriefUtilityAddon-*.jar
           draft: false
           prerelease: false
