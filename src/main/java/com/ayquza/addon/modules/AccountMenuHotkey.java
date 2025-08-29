@@ -20,7 +20,7 @@ import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import org.lwjgl.glfw.GLFW;
 
-public class AutoAccountsOnWhitelist extends Module {
+public class AccountMenuHotkey extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Keybind> hotkey = sgGeneral.add(new KeybindSetting.Builder()
@@ -52,7 +52,7 @@ public class AutoAccountsOnWhitelist extends Module {
     private static GlobalHotkeyService globalService;
     private boolean keyPressed = false;
 
-    public AutoAccountsOnWhitelist() {
+    public AccountMenuHotkey() {
         super(AyquzaAddon.CATEGORY, "accounts-hotkey", "Opens the Account Manager via hotkey everywhere.");
         System.out.println("[AccountsHotkey] Module constructed!");
     }
@@ -173,10 +173,10 @@ public class AutoAccountsOnWhitelist extends Module {
     public static class GlobalHotkeyService {
         private Thread hotkeyThread;
         private boolean running = false;
-        private final AutoAccountsOnWhitelist module;
+        private final AccountMenuHotkey module;
         private boolean keyPressed = false;
 
-        public GlobalHotkeyService(AutoAccountsOnWhitelist module) {
+        public GlobalHotkeyService(AccountMenuHotkey module) {
             this.module = module;
         }
 
