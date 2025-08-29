@@ -8,7 +8,6 @@ import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.NativeImage;
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
 
 import java.io.File;
@@ -39,8 +38,27 @@ public class DisconnectScreenshot extends Module {
         .build()
     );
 
+    private final Setting<Integer> screenshotDelay = sgGeneral.add(new IntSetting.Builder()
+        .name("screenshot-delay-ms")
+        .description("Delay in milliseconds before taking screenshot after disconnect detection.")
+        .defaultValue(50)
+        .min(0)
+        .max(500)
+        .build()
+    );
+
+    private final Setting<Integer> multipleAttempts = sgGeneral.add(new IntSetting.Builder()
+        .name("screenshot-attempts")
+        .description("Number of screenshot attempts to ensure success.")
+        .defaultValue(3)
+        .min(1)
+        .max(10)
+        .build()
+    );
+
     private boolean disconnectDetected = false;
     private boolean screenshotTaken = false;
+    private int attemptCount = 0;
 
     public DisconnectScreenshot() {
         super(AyquzaAddon.CATEGORY, "disconnect-screenshot", "Takes a screenshot before disconnecting from a server.");
@@ -53,23 +71,32 @@ public class DisconnectScreenshot extends Module {
             if (mc.world != null && mc.player != null) {
                 disconnectDetected = true;
                 screenshotTaken = false;
+                attemptCount = 0;
 
                 if (enableNotification.get()) {
-                    info("Disconnect detected - taking screenshot...");
+                    info("Disconnect detected - taking screenshot in " + screenshotDelay.get() + "ms...");
                 }
 
-                // Sofort Screenshot machen (noch bevor der Screen wechselt)
-                takeImmediateScreenshot();
+                // Verzögerung hinzufügen um sicherzustellen dass das Spiel noch rendert
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(screenshotDelay.get());
+                        takeImmediateScreenshot();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }).start();
             }
         }
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
-        // Fallback: Falls das Packet-Event nicht funktioniert hat
+        // Mehrere Versuche über mehrere Ticks um Erfolg sicherzustellen
         MinecraftClient mc = MinecraftClient.getInstance();
 
-        if (disconnectDetected && !screenshotTaken && mc.world != null) {
+        if (disconnectDetected && !screenshotTaken && mc.world != null && attemptCount < multipleAttempts.get()) {
+            attemptCount++;
             takeImmediateScreenshot();
         }
     }
@@ -78,89 +105,82 @@ public class DisconnectScreenshot extends Module {
     private void onGameLeft(GameLeftEvent event) {
         disconnectDetected = false;
         screenshotTaken = false;
+        attemptCount = 0;
     }
 
     private void takeImmediateScreenshot() {
         if (screenshotTaken) return;
-        screenshotTaken = true;
 
         try {
             MinecraftClient mc = MinecraftClient.getInstance();
 
             if (enableNotification.get()) {
-                info("Taking disconnect screenshot...");
+                info("Taking disconnect screenshot (attempt " + attemptCount + ")...");
             }
 
-            // Mehrere Ansätze versuchen
+            // Deine bewährte Methode - aber optimiert
             mc.execute(() -> {
                 try {
-                    // Ansatz 1: Direkte Screenshot-Keybind Ausführung
+                    // Priorität 1: Keybind-Ansatz (meist zuverlässigster)
                     if (mc.options != null && mc.options.screenshotKey != null) {
                         if (enableNotification.get()) {
-                            info("Attempting keybind approach...");
+                            info("Using keybind approach...");
                         }
 
-                        // Simuliere Tastendruck über Keybind-System
                         mc.options.screenshotKey.setPressed(true);
 
-                        // Warte kurz und release
+                        // Sofortiger Release in separatem Thread
                         new Thread(() -> {
                             try {
-                                Thread.sleep(50);
-                                mc.options.screenshotKey.setPressed(false);
+                                Thread.sleep(10); // Sehr kurze Verzögerung
+                                mc.execute(() -> mc.options.screenshotKey.setPressed(false));
+                            } catch (Exception e) {}
+                        }).start();
+
+                        // Screenshot als "genommen" markieren nach kurzer Verzögerung
+                        new Thread(() -> {
+                            try {
+                                Thread.sleep(200);
+                                screenshotTaken = true;
                             } catch (Exception e) {}
                         }).start();
                     }
 
-                    // Ansatz 2: Direkter Keyboard-Event (Fallback)
-                    try {
-                        if (enableNotification.get()) {
-                            info("Attempting keyboard event approach...");
-                        }
+                    // Priorität 2: Direkter Keyboard-Event als Backup
+                    if (!screenshotTaken) {
+                        try {
+                            if (enableNotification.get()) {
+                                info("Using keyboard event backup...");
+                            }
 
-                        long window = mc.getWindow().getHandle();
+                            long window = mc.getWindow().getHandle();
 
-                        // F2 Press
-                        mc.keyboard.onKey(window, org.lwjgl.glfw.GLFW.GLFW_KEY_F2, 0,
-                            org.lwjgl.glfw.GLFW.GLFW_PRESS, 0);
+                            mc.keyboard.onKey(window, org.lwjgl.glfw.GLFW.GLFW_KEY_F2, 0,
+                                org.lwjgl.glfw.GLFW.GLFW_PRESS, 0);
 
-                        // Kurze Verzögerung dann Release
-                        new Thread(() -> {
-                            try {
-                                Thread.sleep(100);
-                                mc.keyboard.onKey(window, org.lwjgl.glfw.GLFW.GLFW_KEY_F2, 0,
-                                    org.lwjgl.glfw.GLFW.GLFW_RELEASE, 0);
-                            } catch (Exception e) {}
-                        }).start();
+                            new Thread(() -> {
+                                try {
+                                    Thread.sleep(20);
+                                    mc.execute(() -> {
+                                        mc.keyboard.onKey(window, org.lwjgl.glfw.GLFW.GLFW_KEY_F2, 0,
+                                            org.lwjgl.glfw.GLFW.GLFW_RELEASE, 0);
+                                    });
+                                    Thread.sleep(200);
+                                    screenshotTaken = true;
+                                } catch (Exception e) {}
+                            }).start();
 
-                    } catch (Exception e2) {
-                        if (enableNotification.get()) {
-                            warning("Keyboard event failed: " + e2.getMessage());
+                        } catch (Exception e2) {
+                            if (enableNotification.get()) {
+                                warning("Keyboard event failed: " + e2.getMessage());
+                            }
                         }
                     }
 
-                    // Ansatz 3: Client Screenshot Command (falls verfügbar)
-                    try {
-                        if (enableNotification.get()) {
-                            info("Attempting client screenshot command...");
-                        }
-
-                        // Versuche Screenshot über Client-Befehle
-                        if (mc.player != null) {
-                            mc.player.networkHandler.sendChatCommand("screenshot");
-                        }
-                    } catch (Exception e3) {
-                        // Ignore - nicht alle Clients haben diesen Befehl
-                    }
-
-                    if (enableNotification.get()) {
-                        info("Screenshot attempts completed - waiting for file...");
-                    }
-
-                    // Nach etwas längerer Verzögerung den Screenshot suchen und verschieben
+                    // Screenshot-Verarbeitung nach Verzögerung
                     new Thread(() -> {
                         try {
-                            Thread.sleep(1000); // 1 Sekunde warten
+                            Thread.sleep(1500); // Etwas länger warten
                             moveLatestScreenshot();
                         } catch (Exception e) {
                             if (enableNotification.get()) {
@@ -193,10 +213,9 @@ public class DisconnectScreenshot extends Module {
                 disconnectDir.mkdirs();
             }
 
-            // Erweiterte Zeitspanne: 30 Sekunden (sicherer)
-            long cutoffTime = System.currentTimeMillis() - 30000;
+            // Längere Zeitspanne für Sicherheit
+            long cutoffTime = System.currentTimeMillis() - 45000; // 45 Sekunden
 
-            // Finde den neuesten Screenshot
             File[] screenshots = screenshotsDir.listFiles((dir, name) -> {
                 if (!name.toLowerCase().endsWith(".png") || name.contains("disconnect")) {
                     return false;
@@ -206,13 +225,11 @@ public class DisconnectScreenshot extends Module {
             });
 
             if (screenshots != null && screenshots.length > 0) {
-                // Sortiere nach Änderungsdatum (neueste zuerst)
                 java.util.Arrays.sort(screenshots,
                     (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
 
                 File latestScreenshot = screenshots[0];
 
-                // Debug: Zeige gefundenen Screenshot
                 if (enableNotification.get()) {
                     long ageSeconds = (System.currentTimeMillis() - latestScreenshot.lastModified()) / 1000;
                     info("Found screenshot: " + latestScreenshot.getName() + " (" + ageSeconds + "s old)");
@@ -221,29 +238,33 @@ public class DisconnectScreenshot extends Module {
                 String newName = generateFileName();
                 File targetFile = new File(disconnectDir, newName);
 
-                // Verschiebe/kopiere den Screenshot
-                if (latestScreenshot.renameTo(targetFile)) {
-                    if (enableNotification.get()) {
-                        info("Disconnect screenshot moved: " + newName);
+                try {
+                    if (latestScreenshot.renameTo(targetFile)) {
+                        if (enableNotification.get()) {
+                            info("Disconnect screenshot moved: " + newName);
+                        }
+                    } else {
+                        java.nio.file.Files.copy(latestScreenshot.toPath(), targetFile.toPath());
+                        latestScreenshot.delete();
+                        if (enableNotification.get()) {
+                            info("Disconnect screenshot copied: " + newName);
+                        }
                     }
-                } else {
-                    // Falls rename nicht funktioniert, kopiere die Datei
-                    java.nio.file.Files.copy(latestScreenshot.toPath(), targetFile.toPath());
-                    latestScreenshot.delete();
+                } catch (Exception e) {
                     if (enableNotification.get()) {
-                        info("Disconnect screenshot copied: " + newName);
+                        error("Failed to move/copy screenshot: " + e.getMessage());
                     }
                 }
+
             } else {
-                // Debug: Keine Screenshots gefunden
                 if (enableNotification.get()) {
-                    warning("No recent screenshots found to move");
+                    warning("No recent screenshots found to move (checked last 45 seconds)");
                 }
             }
 
         } catch (Exception e) {
             if (enableNotification.get()) {
-                error("Failed to move screenshot: " + e.getMessage());
+                error("Failed to process screenshot movement: " + e.getMessage());
             }
         }
     }
@@ -253,7 +274,6 @@ public class DisconnectScreenshot extends Module {
 
         MinecraftClient mc = MinecraftClient.getInstance();
 
-        // Server-Info hinzufügen
         try {
             if (mc.getCurrentServerEntry() != null) {
                 String serverAddress = mc.getCurrentServerEntry().address;
@@ -266,7 +286,6 @@ public class DisconnectScreenshot extends Module {
             // Ignoriere Fehler bei Server-Info
         }
 
-        // Zeitstempel
         if (includeTimestamp.get()) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
             fileName.append("_").append(sdf.format(new Date()));
@@ -280,11 +299,13 @@ public class DisconnectScreenshot extends Module {
     public void onActivate() {
         disconnectDetected = false;
         screenshotTaken = false;
+        attemptCount = 0;
     }
 
     @Override
     public void onDeactivate() {
         disconnectDetected = false;
         screenshotTaken = false;
+        attemptCount = 0;
     }
 }
