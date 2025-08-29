@@ -1,10 +1,5 @@
 name: 🚀 Multi-Version Release
 
-# Add permissions at the top level
-permissions:
-  contents: write
-  releases: write
-
 on:
   push:
     tags:
@@ -127,11 +122,6 @@ jobs:
     needs: build-and-release
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-
-    # Add explicit permissions for this job
-    permissions:
-      contents: write
-      releases: write
 
     steps:
       - name: Download all artifacts
