@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class ClearCrackedAccounts extends Module {
@@ -26,7 +27,14 @@ public class ClearCrackedAccounts extends Module {
         .build()
     );
 
-    private ScheduledExecutorService scheduler;
+    // Static scheduler shared across all instances to persist across server switches
+    private static ScheduledExecutorService globalScheduler;
+    private static ScheduledFuture<?> currentTask;
+    private static long taskStartTime;
+    private static int currentInterval;
+
+    // Track if this module instance is active
+    private boolean isModuleActive = false;
 
     public ClearCrackedAccounts() {
         super(AyquzaAddon.CATEGORY, "clear-cracked-accounts", "Clears all cracked accounts from the Meteor account manager.");
@@ -34,75 +42,134 @@ public class ClearCrackedAccounts extends Module {
 
     @Override
     public void onActivate() {
-        // Erstelle einen neuen Scheduler
-        scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread thread = new Thread(r, "ClearCrackedAccounts-Timer");
-            thread.setDaemon(true); // Daemon Thread - wird beendet wenn Minecraft schließt
-            return thread;
-        });
+        isModuleActive = true;
 
-        // Starte den Timer - läuft unabhängig von Tick-Events
-        scheduler.scheduleAtFixedRate(
-            this::clearCrackedAccounts,
-            clearInterval.get(), // Initial delay
-            clearInterval.get(), // Repeat interval
-            TimeUnit.MINUTES
-        );
+        // Initialize global scheduler if it doesn't exist
+        if (globalScheduler == null || globalScheduler.isShutdown()) {
+            globalScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread thread = new Thread(r, "ClearCrackedAccounts-GlobalTimer");
+                thread.setDaemon(true);
+                return thread;
+            });
+        }
+
+        // Only start a new timer if there's no active task or if the interval has changed
+        if (currentTask == null || currentTask.isDone() || currentInterval != clearInterval.get()) {
+            startNewTimer();
+        }
     }
 
     @Override
     public void onDeactivate() {
-        // Stoppe und bereinige den Scheduler
-        if (scheduler != null && !scheduler.isShutdown()) {
-            scheduler.shutdown();
-            try {
-                // Warte maximal 1 Sekunde auf das Beenden
-                if (!scheduler.awaitTermination(1, TimeUnit.SECONDS)) {
-                    scheduler.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                scheduler.shutdownNow();
-                Thread.currentThread().interrupt();
-            }
-            scheduler = null;
+        isModuleActive = false;
+
+        // Cancel the current task but keep the scheduler running for potential reactivation
+        if (currentTask != null && !currentTask.isDone()) {
+            currentTask.cancel(false);
+            currentTask = null;
         }
+
+        // Only shutdown the global scheduler if no other instance needs it
+        // In practice, you might want to keep it running until Minecraft shuts down
+    }
+
+    private void startNewTimer() {
+        // Cancel existing task if running
+        if (currentTask != null && !currentTask.isDone()) {
+            currentTask.cancel(false);
+        }
+
+        // Calculate remaining time for first execution if continuing an existing timer
+        long initialDelay;
+        long currentTime = System.currentTimeMillis();
+
+        if (taskStartTime > 0 && currentInterval == clearInterval.get()) {
+            // Calculate how much time has passed since the timer was supposed to start
+            long elapsedMinutes = (currentTime - taskStartTime) / (60 * 1000);
+            long remainingMinutes = clearInterval.get() - (elapsedMinutes % clearInterval.get());
+
+            // If less than 30 seconds remaining, execute immediately and start new cycle
+            initialDelay = remainingMinutes <= 0 ? 0 : remainingMinutes;
+        } else {
+            // Fresh start
+            initialDelay = clearInterval.get();
+            taskStartTime = currentTime;
+        }
+
+        currentInterval = clearInterval.get();
+
+        // Schedule the recurring task
+        currentTask = globalScheduler.scheduleAtFixedRate(
+            this::clearCrackedAccounts,
+            initialDelay,
+            clearInterval.get(),
+            TimeUnit.MINUTES
+        );
     }
 
     private void clearCrackedAccounts() {
+        // Only execute if the module is currently active
+        if (!isModuleActive) {
+            return;
+        }
+
         try {
             List<Account> accountsToRemove = new ArrayList<>();
 
-            // Sammle alle cracked accounts
+            // Collect all cracked accounts
             for (Account account : Accounts.get()) {
                 if (account.getType() == AccountType.Cracked) {
                     accountsToRemove.add(account);
                 }
             }
 
-            // Entferne die cracked accounts
+            // Remove cracked accounts
             if (!accountsToRemove.isEmpty()) {
                 for (Account account : accountsToRemove) {
                     Accounts.get().remove(account);
                 }
 
-                // Speichere die Änderungen
+                // Save changes
                 Accounts.get().save();
 
-                // Optional: Debug-Nachricht (nur für Testing)
+                // Optional: Debug message (for testing only)
                 // info("Cleared " + accountsToRemove.size() + " cracked accounts");
             }
 
         } catch (Exception e) {
-            // Silent error handling - keine Chat-Nachrichten
-            e.printStackTrace(); // Für Debug-Zwecke
+            // Silent error handling - no chat messages
+            e.printStackTrace(); // For debugging purposes
         }
     }
 
-    // Optional: Methode um das Intervall zur Laufzeit zu ändern
+    // Method to update interval at runtime
     public void updateInterval() {
         if (isActive()) {
-            onDeactivate(); // Stoppe aktuellen Timer
-            onActivate();   // Starte mit neuem Intervall
+            startNewTimer(); // Restart with new interval
+        }
+    }
+
+    // Static method to properly shutdown the global scheduler when addon is disabled
+    public static void shutdownGlobalScheduler() {
+        if (globalScheduler != null && !globalScheduler.isShutdown()) {
+            if (currentTask != null && !currentTask.isDone()) {
+                currentTask.cancel(false);
+            }
+
+            globalScheduler.shutdown();
+            try {
+                if (!globalScheduler.awaitTermination(2, TimeUnit.SECONDS)) {
+                    globalScheduler.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                globalScheduler.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+
+            globalScheduler = null;
+            currentTask = null;
+            taskStartTime = 0;
+            currentInterval = 0;
         }
     }
 }
