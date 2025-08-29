@@ -1,5 +1,10 @@
 name: 🚀 Multi-Version Release
 
+# Add permissions at the top level
+permissions:
+  contents: write
+  releases: write
+
 on:
   push:
     tags:
@@ -8,7 +13,7 @@ on:
   workflow_dispatch:   # Manual trigger for testing
     inputs:
       version:
-        description: 'Version (e.g. 1.2.3)'
+        description: 'Version 1.5'
         required: true
         type: string
 
@@ -115,13 +120,18 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: addon-mc${{ matrix.minecraft_version }}
+          name: AyquzasGriefUtilityAddon${{ matrix.minecraft_version }}
           path: ${{ env.JAR_NAME }}
 
   create-release:
     needs: build-and-release
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+
+    # Add explicit permissions for this job
+    permissions:
+      contents: write
+      releases: write
 
     steps:
       - name: Download all artifacts
