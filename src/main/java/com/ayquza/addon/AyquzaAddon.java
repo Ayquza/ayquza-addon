@@ -26,7 +26,7 @@ public class AyquzaAddon extends MeteorAddon {
         MeteorClient.EVENT_BUS.subscribe(LOGIN_COMMAND);
 
         // Register modules
-        Modules.get().add(new AutoAccountsOnWhitelist());
+        Modules.get().add(new AccountMenuHotkey());
         System.out.println("[AyquzaAddon] AutoAccountsOnWhitelist module registered!");
         Modules.get().add(new ClipboardLoginModule());
         System.out.println("[AyquzaAddon] ClipboardLoginModule module registered!");
@@ -36,6 +36,8 @@ public class AyquzaAddon extends MeteorAddon {
         System.out.println("[AyquzaAddon] CopyServerIPKeybind module registered!");
         Modules.get().add(new DisconnectScreenshot());
         System.out.println("[AyquzaAddon] DisconnectScreenshot module registered!");
+        Modules.get().add(new ClipboardConnectModule());
+        System.out.println("[AyquzaAddon] ClipboardConnectModule module registered!");
 
         // Register HUD elements
         Hud.get().register(ClipboardHUD.INFO);
