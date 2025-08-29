@@ -1,40 +1,18 @@
-name: Publish Development Build
+# Dev Build temporär deaktiviert
+# Nur noch Multi-Version Releases via Tags
 
-on: push
+# name: Publish Development Build
+#
+# on:
+#   push:
+#     branches:
+#       - master
+#     tags-ignore:
+#       - 'v*'
+#
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     # ... rest des Builds auskommentiert
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write   # <-- wichtig für Releases
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 21
-
-      - name: Build with Gradle
-        run: ./gradlew build
-
-      - name: Rename Jar with run number
-        run: |
-          mkdir dist
-          cp build/libs/*.jar dist/ayquzaaddon-${{ github.run_number }}.jar
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: snapshot-${{ github.run_number }}
-          name: "Dev Build ${{ github.run_number }}"
-          prerelease: true
-          files: dist/*.jar
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+# Um wieder zu aktivieren, entferne die Kommentare (#)
