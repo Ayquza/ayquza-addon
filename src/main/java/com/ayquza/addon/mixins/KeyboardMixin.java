@@ -1,5 +1,6 @@
 package com.ayquza.addon.mixins;
 
+import com.ayquza.addon.modules.AccountMenuHotkey;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.screens.accounts.AccountsScreen;
 import net.minecraft.client.Keyboard;
@@ -65,9 +66,9 @@ public class KeyboardMixin {
 
             // Search for our module
             for (meteordevelopment.meteorclient.systems.modules.Module module : modules.getAll()) {
-                if (module.name.equals("accounts-hotkey") && module instanceof com.ayquza.addon.modules.AutoAccountsOnWhitelist) {
-                    com.ayquza.addon.modules.AutoAccountsOnWhitelist hotkeyModule =
-                        (com.ayquza.addon.modules.AutoAccountsOnWhitelist) module;
+                if (module.name.equals("accounts-hotkey") && module instanceof AccountMenuHotkey) {
+                    AccountMenuHotkey hotkeyModule =
+                        (AccountMenuHotkey) module;
 
                     // Get the configured hotkey
                     meteordevelopment.meteorclient.utils.misc.Keybind keybind = hotkeyModule.getHotkey();
