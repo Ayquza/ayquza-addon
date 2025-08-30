@@ -60,7 +60,7 @@ Additional login-related commands:
 - Stored in a dedicated subfolder inside your screenshots directory (customizable).  
 - Perfect for situations like **server renovations**, where the server closes too quickly for a manual screenshot.  
 
- *Should work 100% of the time now :3*  
+ *Should work 100% of the time now :3*  (20ms delay should work the best)
 
 ---
 
