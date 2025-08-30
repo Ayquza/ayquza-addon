@@ -77,10 +77,10 @@ public class DisconnectScreenshot extends Module {
                     info("Disconnect detected - taking screenshot in " + screenshotDelay.get() + "ms...");
                 }
 
-                // Verzögerung hinzufügen um sicherzustellen dass das Spiel noch rendert
+                // Small delay to ensure game is still rendering (but much shorter than before)
                 new Thread(() -> {
                     try {
-                        Thread.sleep(screenshotDelay.get());
+                        Thread.sleep(Math.max(10, screenshotDelay.get())); // At least 10ms, but use setting
                         takeImmediateScreenshot();
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
@@ -92,7 +92,7 @@ public class DisconnectScreenshot extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
-        // Mehrere Versuche über mehrere Ticks um Erfolg sicherzustellen
+        // Multiple attempts over several ticks to ensure success - back to your working logic
         MinecraftClient mc = MinecraftClient.getInstance();
 
         if (disconnectDetected && !screenshotTaken && mc.world != null && attemptCount < multipleAttempts.get()) {
@@ -115,13 +115,13 @@ public class DisconnectScreenshot extends Module {
             MinecraftClient mc = MinecraftClient.getInstance();
 
             if (enableNotification.get()) {
-                info("Taking disconnect screenshot (attempt " + attemptCount + ")...");
+                info("Taking disconnect screenshot (attempt " + (attemptCount + 1) + ")...");
             }
 
-            // Deine bewährte Methode - aber optimiert
+            // Back to your working method but with immediate timing
             mc.execute(() -> {
                 try {
-                    // Priorität 1: Keybind-Ansatz (meist zuverlässigster)
+                    // Priority 1: Keybind approach (usually most reliable)
                     if (mc.options != null && mc.options.screenshotKey != null) {
                         if (enableNotification.get()) {
                             info("Using keybind approach...");
@@ -129,24 +129,28 @@ public class DisconnectScreenshot extends Module {
 
                         mc.options.screenshotKey.setPressed(true);
 
-                        // Sofortiger Release in separatem Thread
+                        // Release after very short delay (your working method)
                         new Thread(() -> {
                             try {
-                                Thread.sleep(10); // Sehr kurze Verzögerung
+                                Thread.sleep(10); // Very short delay like before
                                 mc.execute(() -> mc.options.screenshotKey.setPressed(false));
-                            } catch (Exception e) {}
+                            } catch (Exception e) {
+                                // Ignore errors here
+                            }
                         }).start();
 
-                        // Screenshot als "genommen" markieren nach kurzer Verzögerung
+                        // Mark screenshot as "taken" after short delay (your working method)
                         new Thread(() -> {
                             try {
                                 Thread.sleep(200);
                                 screenshotTaken = true;
-                            } catch (Exception e) {}
+                            } catch (Exception e) {
+                                // Ignore errors here
+                            }
                         }).start();
                     }
 
-                    // Priorität 2: Direkter Keyboard-Event als Backup
+                    // Priority 2: Direct keyboard event as backup
                     if (!screenshotTaken) {
                         try {
                             if (enableNotification.get()) {
@@ -167,7 +171,9 @@ public class DisconnectScreenshot extends Module {
                                     });
                                     Thread.sleep(200);
                                     screenshotTaken = true;
-                                } catch (Exception e) {}
+                                } catch (Exception e) {
+                                    // Ignore errors here
+                                }
                             }).start();
 
                         } catch (Exception e2) {
@@ -177,10 +183,10 @@ public class DisconnectScreenshot extends Module {
                         }
                     }
 
-                    // Screenshot-Verarbeitung nach Verzögerung
+                    // Screenshot processing after delay - back to your working timing
                     new Thread(() -> {
                         try {
-                            Thread.sleep(1500); // Etwas länger warten
+                            Thread.sleep(1500); // Your original timing that worked
                             moveLatestScreenshot();
                         } catch (Exception e) {
                             if (enableNotification.get()) {
@@ -213,11 +219,11 @@ public class DisconnectScreenshot extends Module {
                 disconnectDir.mkdirs();
             }
 
-            // Längere Zeitspanne für Sicherheit
-            long cutoffTime = System.currentTimeMillis() - 45000; // 45 Sekunden
+            // Back to longer timespan but improved logic
+            long cutoffTime = System.currentTimeMillis() - 15000; // 15 seconds (compromise)
 
             File[] screenshots = screenshotsDir.listFiles((dir, name) -> {
-                if (!name.toLowerCase().endsWith(".png") || name.contains("disconnect")) {
+                if (!name.toLowerCase().endsWith(".png") || name.startsWith("disconnect")) {
                     return false;
                 }
                 File file = new File(dir, name);
@@ -241,13 +247,14 @@ public class DisconnectScreenshot extends Module {
                 try {
                     if (latestScreenshot.renameTo(targetFile)) {
                         if (enableNotification.get()) {
-                            info("Disconnect screenshot moved: " + newName);
+                            info("✓ Disconnect screenshot moved: " + newName);
                         }
                     } else {
-                        java.nio.file.Files.copy(latestScreenshot.toPath(), targetFile.toPath());
+                        java.nio.file.Files.copy(latestScreenshot.toPath(), targetFile.toPath(),
+                            java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                         latestScreenshot.delete();
                         if (enableNotification.get()) {
-                            info("Disconnect screenshot copied: " + newName);
+                            info("✓ Disconnect screenshot copied: " + newName);
                         }
                     }
                 } catch (Exception e) {
@@ -258,7 +265,7 @@ public class DisconnectScreenshot extends Module {
 
             } else {
                 if (enableNotification.get()) {
-                    warning("No recent screenshots found to move (checked last 45 seconds)");
+                    warning("No recent screenshots found to move (checked last 15 seconds)");
                 }
             }
 
@@ -283,7 +290,7 @@ public class DisconnectScreenshot extends Module {
                 fileName.append("_singleplayer");
             }
         } catch (Exception e) {
-            // Ignoriere Fehler bei Server-Info
+            // Ignore errors when getting server info
         }
 
         if (includeTimestamp.get()) {
@@ -300,6 +307,9 @@ public class DisconnectScreenshot extends Module {
         disconnectDetected = false;
         screenshotTaken = false;
         attemptCount = 0;
+        if (enableNotification.get()) {
+            info("DisconnectScreenshot activated");
+        }
     }
 
     @Override
@@ -307,5 +317,8 @@ public class DisconnectScreenshot extends Module {
         disconnectDetected = false;
         screenshotTaken = false;
         attemptCount = 0;
+        if (enableNotification.get()) {
+            info("DisconnectScreenshot deactivated");
+        }
     }
 }
