@@ -32,9 +32,11 @@ Additional login-related commands:
 
 ---
 
-### 👤 Account Manager Keybind Module  
-- Set a keybind to open the Meteor Account Manager in-game or in the main menu.  
-- Useful if you get kicked for not being whitelisted → instantly open the menu and log in as another account.  
+### 👤 Clipboard Reconnect Button (Disconnect Screen)  
+- Adds a **ClipboardReconnect button** below the Quick Join button in the disconnect screen.  
+- When pressed, it reconnects you with whatever name you currently have in your clipboard.  
+
+**Example:** You get kicked for not being whitelisted → copy a whitelisted name → press **ClipboardReconnect** → instantly rejoin as that account.  
 
 ---
 
@@ -58,7 +60,7 @@ Additional login-related commands:
 - Stored in a dedicated subfolder inside your screenshots directory (customizable).  
 - Perfect for situations like **server renovations**, where the server closes too quickly for a manual screenshot.  
 
- *Should work 100% of the time now :3*  
+ *Should work 100% of the time now :3*  (20ms delay should work the best)
 
 ---
 
@@ -70,7 +72,8 @@ Additional login-related commands:
 
 ### 🔹 Small Extras  
 - Copy Server IP Module  
-- Current Clipboard HUD  
+- Current Clipboard HUD 
+- Meteor Account Manager Keybind Module  
 
 ---
 
