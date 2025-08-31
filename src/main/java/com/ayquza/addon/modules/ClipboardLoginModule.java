@@ -165,17 +165,10 @@ public class ClipboardLoginModule extends Module {
 
     private String getClipboardText() {
         try {
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-
-            if (!clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
-                return null;
-            }
-
-            return (String) clipboard.getData(DataFlavor.stringFlavor);
-
-        } catch (UnsupportedFlavorException | IOException e) {
+            return mc.keyboard.getClipboard();
+        } catch (Exception e) {
             if (debugMode.get()) {
-                System.out.println("[ClipboardLogin] Clipboard error: " + e.getMessage());
+                System.out.println("[ClipboardLogin] MC Clipboard error: " + e.getMessage());
             }
             return null;
         }
