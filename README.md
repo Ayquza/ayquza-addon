@@ -64,6 +64,14 @@ Additional login-related commands:
 
 ---
 
+### 🔧 Custom Discord RPC Module  
+- Adds **custom Discord Rich Presence** support for the Ayquza Addon.  
+- Configure your own **application ID, images, and texts** directly in the Meteor settings.  
+- Optional **timestamp** support and a **debug mode** for easier troubleshooting.  
+- Includes in-game buttons to **update, restart, or test the RPC connection**.  
+
+---
+
 ### 🧹 Clear Cracked Account Module  
 - Clears all cracked accounts from the Meteor Account Manager.  
 - No more scrolling when adding a new account → also cleaner!  
