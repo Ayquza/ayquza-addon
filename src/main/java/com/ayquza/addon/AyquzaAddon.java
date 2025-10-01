@@ -40,6 +40,9 @@ public class AyquzaAddon extends MeteorAddon {
         System.out.println("[AyquzaAddon] ClipboardConnectModule module registered!");
         Modules.get().add(new CustomRPC());
         System.out.println("[AyquzaAddon] CustomRPC module registered!");
+        Modules.get().add(new FakeDisconnect());
+        System.out.println("[AyquzaAddon] FakeDisconnect module registered!");
+
 
         // Register HUD elements
         Hud.get().register(ClipboardHUD.INFO);

@@ -10,7 +10,9 @@
     "GameMenuScreenMixin",
     "KeyboardMixin",
     "DisconnectScreenMixin",
-    "ClipboardConnectKeyboardMixin"
+    "ClipboardConnectKeyboardMixin",
+    "ClientCommonNetworkHandlerMixin"
+
 
 
 
