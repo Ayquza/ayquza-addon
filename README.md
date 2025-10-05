@@ -47,6 +47,19 @@ Additional login-related commands:
 
 ---
 
+### 🟥 Fake Disconnect Module  
+- Lets you **stay inside the world after a disconnect** instead of being kicked to the menu.  
+- You can still walk around, explore and look at the world — but no block breaking, player interaction or server communication.  
+- If you get kicked, the module shows you a **chat message with the real kick reason**.  
+
+**Example:** You would normally see *"You are banned from this server!"* → instead, you stay in the world and see in chat:  
+[FakeDisconnect] Server kicked you for: You are banned from this server!
+
+
+Perfect for exploring or taking a last look at builds **after a disconnect** without instantly being thrown back to the title screen.  
+
+---
+
 ### ⌨️ Quick Join Keybind Module  
 - Set a keybind in the module.  
 - When pressed, the addon automatically connects you to the server with the IP from your clipboard.  
