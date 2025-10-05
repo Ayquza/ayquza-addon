@@ -16,7 +16,7 @@ public class FakeDisconnect extends Module {
 
 
     public FakeDisconnect() {
-        super(AyquzaAddon.CATEGORY,"FakeDisconnect", "test");
+        super(AyquzaAddon.CATEGORY,"FakeDisconnect", "Lets you stay inside the world after a disconnect instead of being kicked to the menu.");
         INSTANCE = this;
     }
 
@@ -24,20 +24,17 @@ public class FakeDisconnect extends Module {
     @Override
     public void onActivate() {
 // Wenn das Modul aktiviert wird, tun wir nichts aktiv - die Mixin-Logik verhindert den Screen
-        info("FakeDisconnect aktiviert");
+        info("FakeDisconnect activated");
     }
 
 
     @Override
     public void onDeactivate() {
-        info("FakeDisconnect deaktiviert");
+        info("FakeDisconnect deactivated");
     }
 
 
-    /**
-     * Fallback-Methode: Erzwinge das Entfernen des NetworkHandlers und schließe Screens.
-     * Kann z.B. vom Mixin aufgerufen werden, falls du lieber explizit handeln willst.
-     */
+
     public void removeNetworkHandlerAndKeepWorld() {
         mc.execute(() -> {
             try {
