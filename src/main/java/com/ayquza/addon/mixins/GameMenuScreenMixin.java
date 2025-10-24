@@ -31,8 +31,8 @@ public class GameMenuScreenMixin extends Screen {
         ButtonWidget disconnectButton = findDisconnectButton();
         if (disconnectButton == null) return;
 
-        int buttonWidth = 80;
-        int buttonHeight = 20;
+        int buttonWidth = disconnectButton.getWidth();
+        int buttonHeight = disconnectButton.getHeight();
         int spacing = 5;
 
         int quickJoinX = disconnectButton.getX() - (buttonWidth + spacing);
@@ -49,11 +49,17 @@ public class GameMenuScreenMixin extends Screen {
         ButtonWidget reconnectButton = ButtonWidget.builder(
             Text.literal("Reconnect"),
             button -> {
-                ServerInfo info = mc.getNetworkHandler().getServerInfo();
+                ServerInfo info = mc.getCurrentServerEntry();
                 if (info != null) {
                     mc.world.disconnect(Text.of(""));
-                    ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), mc,
-                        ServerAddress.parse(info.address), info, false, null);
+                    ConnectScreen.connect(
+                        new MultiplayerScreen(new TitleScreen()),
+                        mc,
+                        ServerAddress.parse(info.address),
+                        info,
+                        false,
+                        null
+                    );
                 }
             }
         ).dimensions(reconnectX, reconnectY, buttonWidth, buttonHeight).build();
@@ -63,20 +69,14 @@ public class GameMenuScreenMixin extends Screen {
     }
 
     private ButtonWidget findDisconnectButton() {
-        ButtonWidget result = null;
-        int lowestY = -1;
         for (var element : this.children()) {
             if (element instanceof ButtonWidget button) {
                 String text = button.getMessage().getString().toLowerCase();
                 if (text.contains("disconnect") || text.contains("leave") || text.contains("quit")) {
                     return button;
                 }
-                if (button.getY() > lowestY) {
-                    lowestY = button.getY();
-                    result = button;
-                }
             }
         }
-        return result;
+        return null;
     }
 }
