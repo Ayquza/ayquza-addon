@@ -24,20 +24,17 @@ public class ClientCommonNetworkHandlerMixin {
             MinecraftClient mc = MinecraftClient.getInstance();
             mc.execute(() -> {
                 try {
-                    // Nachricht im Chat ausgeben
                     mc.inGameHud.getChatHud().addMessage(
                         Text.literal("§c[FakeDisconnect] Server kicked you for: ")
                             .append(disconnectionInfo.reason())
                     );
 
-                    // networkHandler entfernen
                     java.lang.reflect.Field f = ReflectionUtil.findFieldByType(MinecraftClient.class, ClientPlayNetworkHandler.class);
                     if (f != null) {
                         f.setAccessible(true);
                         f.set(mc, null);
                     }
 
-                    // Disconnect-Screen verhindern
                     mc.setScreen((Screen) null);
                 } catch (Exception e) {
                     e.printStackTrace();

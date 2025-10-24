@@ -20,13 +20,6 @@ import net.minecraft.client.network.ServerAddress;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
-
 public class ClipboardLoginModule extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
@@ -62,145 +55,72 @@ public class ClipboardLoginModule extends Module {
 
     public ClipboardLoginModule() {
         super(AyquzaAddon.CATEGORY, "clipboard-login", "Login with username from clipboard via hotkey.");
-        System.out.println("[ClipboardLogin] Module constructed!");
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
         if (!isActive() || mc == null) return;
 
-        // Check hotkey
-        try {
-            if (hotkey.get().isPressed()) {
-                if (!keyPressed) {
-                    keyPressed = true;
-
-                    if (debugMode.get()) {
-                        info("Clipboard login hotkey pressed!");
-                    }
-
-                    executeClipboardLogin();
-                }
-            } else {
-                keyPressed = false;
+        if (hotkey.get().isPressed()) {
+            if (!keyPressed) {
+                keyPressed = true;
+                executeClipboardLogin();
             }
-        } catch (Exception e) {
-            if (debugMode.get()) {
-                System.out.println("[ClipboardLogin] Error during hotkey check: " + e.getMessage());
-            }
+        } else {
+            keyPressed = false;
         }
     }
 
     private void executeClipboardLogin() {
-        try {
-            String clipboardText = getClipboardText();
+        String clipboardText = getClipboardText();
+        if (clipboardText == null || clipboardText.trim().isEmpty()) return;
 
-            if (clipboardText == null || clipboardText.trim().isEmpty()) {
-                error("Clipboard is empty or invalid!");
-                return;
-            }
+        String username = clipboardText.trim();
+        if (!validateUsername(username)) return;
 
-            String username = clipboardText.trim();
+        ServerInfo currentServer = mc.getCurrentServerEntry();
 
-            if (debugMode.get()) {
-                System.out.println("[ClipboardLogin] Clipboard content: '" + username + "'");
-            }
+        MeteorExecutor.execute(() -> {
+            try {
+                CrackedAccount crackedAccount = new CrackedAccount(username);
 
-            // Validate username
-            if (!validateUsername(username)) {
-                return;
-            }
+                if (addIfNotExists.get()) {
+                    addAccountIfNotExists(crackedAccount);
+                } else {
+                    CrackedAccount existing = findExistingAccount(username);
+                    if (existing != null) crackedAccount = existing;
+                    else return;
+                }
 
-            info("Logging in as: " + username);
-
-            // Get current server for reconnect
-            ServerInfo currentServer = mc.getCurrentServerEntry();
-
-            // Execute login in background thread
-            MeteorExecutor.execute(() -> {
-                try {
-                    CrackedAccount crackedAccount = new CrackedAccount(username);
-
-                    if (addIfNotExists.get()) {
-                        addAccountIfNotExists(crackedAccount);
-                    } else {
-                        // Try to find existing account
-                        CrackedAccount existing = findExistingAccount(username);
-                        if (existing != null) {
-                            crackedAccount = existing;
-                        } else {
-                            error("Account not found: " + username + " (add-if-not-exists is disabled)");
-                            return;
-                        }
-                    }
-
-                    // Login
-                    if (crackedAccount.login()) {
-                        Accounts.get().save();
-                        info("Successfully logged in as: " + crackedAccount.getUsername());
-
-                        // Reconnect if enabled and we're on a server
-                        if (autoReconnect.get() && currentServer != null) {
-                            reconnectToServer(currentServer);
-                        }
-                    } else {
-                        error("Failed to login as: " + crackedAccount.getUsername());
-                    }
-
-                } catch (Exception e) {
-                    error("Login failed: " + e.getMessage());
-                    if (debugMode.get()) {
-                        e.printStackTrace();
+                if (crackedAccount.login()) {
+                    Accounts.get().save();
+                    if (autoReconnect.get() && currentServer != null) {
+                        reconnectToServer(currentServer);
                     }
                 }
-            });
 
-        } catch (Exception e) {
-            error("Error executing clipboard login: " + e.getMessage());
-            if (debugMode.get()) {
-                e.printStackTrace();
-            }
-        }
+            } catch (Exception ignored) {}
+        });
     }
 
     private String getClipboardText() {
         try {
             return mc.keyboard.getClipboard();
         } catch (Exception e) {
-            if (debugMode.get()) {
-                System.out.println("[ClipboardLogin] MC Clipboard error: " + e.getMessage());
-            }
             return null;
         }
     }
 
     private boolean validateUsername(String username) {
-        if (username.isEmpty()) {
-            error("Username cannot be empty.");
-            return false;
-        }
-
-        if (username.length() > 16) {
-            error("Username cannot be longer than 16 characters.");
-            return false;
-        }
-
-        // Check for valid minecraft username characters
-        if (!username.matches("^[a-zA-Z0-9_]+$")) {
-            error("Username contains invalid characters. Only letters, numbers and underscore allowed. COULD BE A MISTAKE TRY .LOGIN INSTEAD");
-            return false;
-        }
-
-        return true;
+        if (username.isEmpty() || username.length() > 16) return false;
+        return username.matches("^[a-zA-Z0-9_]+$");
     }
 
     private CrackedAccount findExistingAccount(String username) {
         for (meteordevelopment.meteorclient.systems.accounts.Account<?> acc : Accounts.get()) {
             if (acc instanceof CrackedAccount) {
                 CrackedAccount ca = (CrackedAccount) acc;
-                if (ca.getUsername().equalsIgnoreCase(username)) {
-                    return ca;
-                }
+                if (ca.getUsername().equalsIgnoreCase(username)) return ca;
             }
         }
         return null;
@@ -209,46 +129,17 @@ public class ClipboardLoginModule extends Module {
     private void addAccountIfNotExists(CrackedAccount crackedAccount) {
         if (crackedAccount.fetchInfo()) {
             crackedAccount.getCache().loadHead();
-
-            if (!Accounts.get().exists(crackedAccount)) {
-                if (debugMode.get()) {
-                    System.out.println("[ClipboardLogin] Adding new cracked account: " + crackedAccount.getUsername());
-                }
-                info("Added new cracked account: " + crackedAccount.getUsername());
-                Accounts.get().add(crackedAccount);
-            } else {
-                if (debugMode.get()) {
-                    System.out.println("[ClipboardLogin] Account already exists: " + crackedAccount.getUsername());
-                }
-            }
-        } else {
-            throw new RuntimeException("Failed to fetch account info for: " + crackedAccount.getUsername());
-        }
+            if (!Accounts.get().exists(crackedAccount)) Accounts.get().add(crackedAccount);
+        } else throw new RuntimeException("Failed to fetch account info for: " + crackedAccount.getUsername());
     }
 
     private void reconnectToServer(ServerInfo serverInfo) {
         mc.execute(() -> {
             try {
-                if (debugMode.get()) {
-                    System.out.println("[ClipboardLogin] Reconnecting to: " + serverInfo.address);
-                }
-
-                info("Disconnecting...");
-
-                if (mc.world != null) {
-                    mc.world.disconnect(Text.of("Reconnecting"));
-                }
-
-                if (mc.getCurrentServerEntry() == null) {
-                    mc.disconnectWithSavingScreen();
-                } else {
-                    mc.disconnectWithProgressScreen();
-                }
-
+                if (mc.world != null) mc.world.disconnect(Text.of("Reconnecting"));
+                if (mc.getCurrentServerEntry() == null) mc.disconnectWithSavingScreen();
+                else mc.disconnectWithProgressScreen();
                 mc.setScreen(new MultiplayerScreen(new TitleScreen()));
-
-                info("Reconnecting to server: " + serverInfo.address);
-
                 ConnectScreen.connect(
                     new MultiplayerScreen(new TitleScreen()),
                     mc,
@@ -257,30 +148,12 @@ public class ClipboardLoginModule extends Module {
                     false,
                     null
                 );
-
-            } catch (Exception e) {
-                error("Reconnect failed: " + e.getMessage());
-                if (debugMode.get()) {
-                    e.printStackTrace();
-                }
-            }
+            } catch (Exception ignored) {}
         });
     }
 
     @Override
-    public void onActivate() {
-        keyPressed = false;
-        System.out.println("[ClipboardLogin] Module activated!");
-
-
-        if (debugMode.get()) {
-            info("Debug mode enabled");
-        }
-    }
-
+    public void onActivate() { keyPressed = false; }
     @Override
-    public void onDeactivate() {
-        System.out.println("[ClipboardLogin] Module deactivated!");
-        info("Clipboard Login deactivated!");
-    }
+    public void onDeactivate() {}
 }

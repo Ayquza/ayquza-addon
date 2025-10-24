@@ -17,7 +17,7 @@ public class CopyServerIPKeybind extends Module {
         if (mc.getCurrentServerEntry() != null) {
             String ip = mc.getCurrentServerEntry().address;
 
-            // Use GLFW clipboard instead of AWT
+
             GLFW.glfwSetClipboardString(mc.getWindow().getHandle(), ip);
 
             info("Copied server IP: " + ip);
@@ -25,6 +25,6 @@ public class CopyServerIPKeybind extends Module {
             info("You are not connected to a server.");
         }
 
-        toggle(); // Auto-disable after use
+        toggle();
     }
 }

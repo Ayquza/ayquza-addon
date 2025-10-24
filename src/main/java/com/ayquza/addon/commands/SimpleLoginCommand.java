@@ -91,7 +91,6 @@ public class SimpleLoginCommand extends Command {
 
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
-        // .login <username>  (default: create/login and reconnect)
         builder.then(argument("username", StringArgumentType.word())
             .executes(context -> {
                 String username = StringArgumentType.getString(context, "username");
@@ -109,9 +108,6 @@ public class SimpleLoginCommand extends Command {
                 return SINGLE_SUCCESS;
             }));
 
-
-
-        // .login list
         builder.then(literal("list").executes(context -> {
             info("Cracked Accounts:");
             int count = 0;
@@ -126,12 +122,10 @@ public class SimpleLoginCommand extends Command {
             return SINGLE_SUCCESS;
         }));
 
-        // .login remove <username>
         builder.then(literal("remove").then(argument("username", StringArgumentType.word())
             .executes(context -> {
                 String username = StringArgumentType.getString(context, "username");
 
-                // Accounts.get() is Iterable, not a Collection: build a copy manually
                 List<Account<?>> copy = new ArrayList<>();
                 for (Account<?> a : Accounts.get()) copy.add(a);
 
@@ -151,13 +145,11 @@ public class SimpleLoginCommand extends Command {
                 return SINGLE_SUCCESS;
             })));
 
-        // .login set <username>
         builder.then(literal("set").then(argument("username", StringArgumentType.word())
             .executes(context -> {
                 String username = StringArgumentType.getString(context, "username");
                 ServerInfo currentServer = mc.getCurrentServerEntry();
 
-                // find account
                 CrackedAccount found = null;
                 for (Account<?> acc : Accounts.get()) {
                     if (acc instanceof CrackedAccount) {
@@ -188,7 +180,6 @@ public class SimpleLoginCommand extends Command {
                 return SINGLE_SUCCESS;
             })));
 
-        // .login clear
         builder.then(literal("clear").executes(context -> {
             List<Account<?>> copy = new ArrayList<>();
             for (Account<?> a : Accounts.get()) copy.add(a);
@@ -212,7 +203,6 @@ public class SimpleLoginCommand extends Command {
             return SINGLE_SUCCESS;
         }));
 
-        // .login random
         builder.then(literal("random").executes(context -> {
             List<CrackedAccount> crackedList = new ArrayList<>();
             for (Account<?> acc : Accounts.get()) {

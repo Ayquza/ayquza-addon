@@ -308,7 +308,7 @@ public class DisconnectScreenshot extends Module {
         screenshotTaken = false;
         attemptCount = 0;
         if (enableNotification.get()) {
-            info("DisconnectScreenshot activated");
+
         }
     }
 

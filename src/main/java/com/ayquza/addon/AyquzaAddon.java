@@ -42,6 +42,8 @@ public class AyquzaAddon extends MeteorAddon {
         System.out.println("[AyquzaAddon] CustomRPC module registered!");
         Modules.get().add(new FakeDisconnect());
         System.out.println("[AyquzaAddon] FakeDisconnect module registered!");
+        Modules.get().add(new PlayerNameCyclerModule());
+        System.out.println("[AyquzaAddon] PlayerNameCyclerModule module registered!");
 
 
         // Register HUD elements
@@ -57,7 +59,7 @@ public class AyquzaAddon extends MeteorAddon {
         System.out.println("[AyquzaAddon] Category registered!");
     }
 
-    // Add shutdown hook to cleanup resources when Minecraft closes
+
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("[AyquzaAddon] Addon is shutting down...");

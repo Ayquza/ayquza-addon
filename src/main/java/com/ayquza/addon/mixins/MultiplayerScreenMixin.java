@@ -3,7 +3,6 @@ package com.ayquza.addon.mixins;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,12 +20,10 @@ public class MultiplayerScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("TAIL"))
     private void addQuickJoinButton(CallbackInfo ci) {
-        // Find the "Join Server" button
         ButtonWidget joinServerButton = findJoinServerButton();
 
         if (joinServerButton != null) {
-            // Position the Quick Join button to the left of the Join Server button
-            int buttonX = joinServerButton.getX() - 125; // 125 = Button width (120) + spacing (5)
+            int buttonX = joinServerButton.getX() - 125;
             int buttonY = joinServerButton.getY();
             int buttonWidth = 120;
             int buttonHeight = 20;
@@ -44,14 +41,11 @@ public class MultiplayerScreenMixin extends Screen {
     }
 
     private ButtonWidget findJoinServerButton() {
-        // Search through all widgets for the "Join Server" button
         for (var widget : this.children()) {
             if (widget instanceof ButtonWidget button) {
-                // Check for the Join Server button text
                 Text message = button.getMessage();
                 String messageString = message.getString();
 
-                // Look for "Join Server" text
                 if (messageString.equals("Join Server") ||
                     messageString.contains("Join")) {
                     return button;

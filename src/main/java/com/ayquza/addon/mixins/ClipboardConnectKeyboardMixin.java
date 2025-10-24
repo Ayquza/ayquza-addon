@@ -25,16 +25,14 @@ public class ClipboardConnectKeyboardMixin {
     private static boolean clipboardKeyPressed = false;
     private static int cachedClipboardHotkey = -1;
     private static long lastClipboardHotkeyUpdate = 0;
-    private static final long CLIPBOARD_HOTKEY_CACHE_TIME = 5000; // 5 Sekunden Cache
+    private static final long CLIPBOARD_HOTKEY_CACHE_TIME = 5000;
 
     @Inject(method = "onKey", at = @At("HEAD"))
     private void onClipboardKeyPressed(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
-        // Hole den konfigurierten Clipboard-Hotkey
         int hotkeyCode = getConfiguredClipboardHotkey();
         if (hotkeyCode == -1 || key != hotkeyCode) return;
 
         try {
-            // Only on key press (not release)
             if (action == GLFW.GLFW_PRESS && !clipboardKeyPressed) {
                 clipboardKeyPressed = true;
                 handleClipboardHotkeyPress();
@@ -48,14 +46,12 @@ public class ClipboardConnectKeyboardMixin {
     }
 
     private int getConfiguredClipboardHotkey() {
-        // Cache-System: Nur alle 5 Sekunden neu laden
         long currentTime = System.currentTimeMillis();
         if (cachedClipboardHotkey != -1 && (currentTime - lastClipboardHotkeyUpdate) < CLIPBOARD_HOTKEY_CACHE_TIME) {
             return cachedClipboardHotkey;
         }
 
         try {
-            // Try to find the clipboard-connect module
             meteordevelopment.meteorclient.systems.modules.Modules modules =
                 meteordevelopment.meteorclient.systems.modules.Modules.get();
 
@@ -65,24 +61,20 @@ public class ClipboardConnectKeyboardMixin {
                 return cachedClipboardHotkey;
             }
 
-            // Search for clipboard-connect module
             for (meteordevelopment.meteorclient.systems.modules.Module module : modules.getAll()) {
                 if (module.name.equals("clipboard-connect") && module instanceof ClipboardConnectModule) {
                     ClipboardConnectModule clipboardModule = (ClipboardConnectModule) module;
 
-                    // Only respond if module is active
                     if (!clipboardModule.isActive()) {
                         cachedClipboardHotkey = -1;
                         lastClipboardHotkeyUpdate = currentTime;
                         return cachedClipboardHotkey;
                     }
 
-                    // Get the configured hotkey
                     meteordevelopment.meteorclient.utils.misc.Keybind keybind = clipboardModule.getHotkey();
                     if (keybind != null && keybind.isSet()) {
                         int keyValue = keybind.getValue();
 
-                        // Nur Tastatur-Tasten unterstützen (keine Maustasten)
                         if (keyValue >= GLFW.GLFW_MOUSE_BUTTON_1 && keyValue <= GLFW.GLFW_MOUSE_BUTTON_8) {
                             System.out.println("[ClipboardConnectMixin] Mouse buttons not supported, ignoring: " + keybind.toString());
                             cachedClipboardHotkey = -1;
@@ -90,7 +82,6 @@ public class ClipboardConnectKeyboardMixin {
                             return cachedClipboardHotkey;
                         }
 
-                        // Nur einmal loggen wenn sich der Hotkey ändert
                         if (cachedClipboardHotkey != keyValue) {
                             System.out.println("[ClipboardConnectMixin] Clipboard hotkey updated to: " + keybind.toString());
                         }
@@ -104,7 +95,6 @@ public class ClipboardConnectKeyboardMixin {
             System.out.println("[ClipboardConnectMixin] Error getting hotkey: " + e.getMessage());
         }
 
-        // No active module found
         cachedClipboardHotkey = -1;
         lastClipboardHotkeyUpdate = currentTime;
         return cachedClipboardHotkey;
@@ -118,7 +108,6 @@ public class ClipboardConnectKeyboardMixin {
 
         System.out.println("[ClipboardConnectMixin] Clipboard hotkey pressed! Current screen: " + screenName);
 
-        // Check if we're in a relevant menu
         boolean inRelevantMenu = currentScreen instanceof MultiplayerScreen ||
             currentScreen instanceof TitleScreen ||
             currentScreen instanceof DisconnectedScreen ||
@@ -130,13 +119,9 @@ public class ClipboardConnectKeyboardMixin {
 
         if (inRelevantMenu) {
             System.out.println("[ClipboardConnectMixin] In relevant menu - executing clipboard connect!");
-
-            // Execute clipboard connect in next client tick
             client.execute(() -> {
                 try {
                     System.out.println("[ClipboardConnectMixin] Executing clipboard connect...");
-
-                    // Get clipboard text using Minecraft's keyboard
                     String clipboardText = null;
                     try {
                         clipboardText = client.keyboard.getClipboard();
@@ -152,29 +137,12 @@ public class ClipboardConnectKeyboardMixin {
 
                     String serverAddress = clipboardText.trim();
                     System.out.println("[ClipboardConnectMixin] Connecting to: " + serverAddress);
-
-                    // Parse server address
                     ServerAddress parsedAddress = ServerAddress.parse(serverAddress);
-
-                    // Create server info
                     ServerInfo serverInfo = new ServerInfo("ClipboardConnect", serverAddress, ServerInfo.ServerType.OTHER);
-
-                    // Set screen to multiplayer screen first
                     MultiplayerScreen multiplayerScreen = new MultiplayerScreen(new TitleScreen());
                     client.setScreen(multiplayerScreen);
-
-                    // Connect to server
-                    ConnectScreen.connect(
-                        multiplayerScreen,
-                        client,
-                        parsedAddress,
-                        serverInfo,
-                        false, // quickPlay
-                        null   // transferState
-                    );
-
+                    ConnectScreen.connect(multiplayerScreen, client, parsedAddress, serverInfo, false, null);
                     System.out.println("[ClipboardConnectMixin] SUCCESS! Connecting to: " + serverAddress);
-
                 } catch (Exception e) {
                     System.out.println("[ClipboardConnectMixin] Error connecting: " + e.getMessage());
                     e.printStackTrace();

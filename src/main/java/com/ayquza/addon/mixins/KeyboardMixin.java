@@ -24,16 +24,14 @@ public class KeyboardMixin {
     private static boolean keyPressed = false;
     private static int cachedHotkey = -1;
     private static long lastHotkeyUpdate = 0;
-    private static final long HOTKEY_CACHE_TIME = 5000; // 5 Sekunden Cache
+    private static final long HOTKEY_CACHE_TIME = 5000;
 
     @Inject(method = "onKey", at = @At("HEAD"))
     private void onKeyPressed(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
-        // Hole den konfigurierten Hotkey (mit Cache)
         int hotkeyCode = getConfiguredHotkey();
         if (hotkeyCode == -1 || key != hotkeyCode) return;
 
         try {
-            // Only on key press (not release)
             if (action == GLFW.GLFW_PRESS && !keyPressed) {
                 keyPressed = true;
                 handleHotkeyPress();
@@ -47,14 +45,12 @@ public class KeyboardMixin {
     }
 
     private int getConfiguredHotkey() {
-        // Cache-System: Nur alle 5 Sekunden neu laden
         long currentTime = System.currentTimeMillis();
         if (cachedHotkey != -1 && (currentTime - lastHotkeyUpdate) < HOTKEY_CACHE_TIME) {
             return cachedHotkey;
         }
 
         try {
-            // Try to find the module
             meteordevelopment.meteorclient.systems.modules.Modules modules =
                 meteordevelopment.meteorclient.systems.modules.Modules.get();
 
@@ -64,16 +60,11 @@ public class KeyboardMixin {
                 return cachedHotkey;
             }
 
-            // Search for our module
             for (meteordevelopment.meteorclient.systems.modules.Module module : modules.getAll()) {
                 if (module.name.equals("accounts-hotkey") && module instanceof AccountMenuHotkey) {
-                    AccountMenuHotkey hotkeyModule =
-                        (AccountMenuHotkey) module;
-
-                    // Get the configured hotkey
+                    AccountMenuHotkey hotkeyModule = (AccountMenuHotkey) module;
                     meteordevelopment.meteorclient.utils.misc.Keybind keybind = hotkeyModule.getHotkey();
                     if (keybind != null && keybind.isSet()) {
-                        // Nur einmal loggen wenn sich der Hotkey ändert
                         if (cachedHotkey != keybind.getValue()) {
                             System.out.println("[KeyboardMixin] Hotkey updated to: " + keybind.toString());
                         }
@@ -87,7 +78,6 @@ public class KeyboardMixin {
             System.out.println("[KeyboardMixin] Error getting hotkey: " + e.getMessage());
         }
 
-        // Fallback to F6
         cachedHotkey = GLFW.GLFW_KEY_F6;
         lastHotkeyUpdate = currentTime;
         return cachedHotkey;
@@ -101,7 +91,6 @@ public class KeyboardMixin {
 
         System.out.println("[KeyboardMixin] Hotkey pressed! Current screen: " + screenName);
 
-        // Check if we're in a relevant menu
         boolean inRelevantMenu = currentScreen instanceof MultiplayerScreen ||
             currentScreen instanceof TitleScreen ||
             currentScreen instanceof DisconnectedScreen ||
@@ -113,22 +102,16 @@ public class KeyboardMixin {
 
         if (inRelevantMenu) {
             System.out.println("[KeyboardMixin] In relevant menu - opening Account Manager!");
-
-            // Execute in next client tick
             client.execute(() -> {
                 try {
                     System.out.println("[KeyboardMixin] Executing Account Manager open...");
-
                     if (GuiThemes.get() == null) {
                         System.out.println("[KeyboardMixin] ERROR: GuiThemes is null!");
                         return;
                     }
-
                     AccountsScreen accountsScreen = new AccountsScreen(GuiThemes.get());
                     client.setScreen(accountsScreen);
-
                     System.out.println("[KeyboardMixin] SUCCESS! Account Manager opened via Mixin!");
-
                 } catch (Exception e) {
                     System.out.println("[KeyboardMixin] Error opening: " + e.getMessage());
                     e.printStackTrace();

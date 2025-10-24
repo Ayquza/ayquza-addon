@@ -13,7 +13,7 @@ public class ClipboardHUD extends HudElement {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgBackground = settings.createGroup("Background");
 
-    // Settings
+
     private final Setting<Integer> maxLength = sgGeneral.add(new IntSetting.Builder()
         .name("max-length")
         .description("Maximum number of characters to display.")
@@ -60,7 +60,7 @@ public class ClipboardHUD extends HudElement {
     private long lastErrorTime = 0;
     private static final long ERROR_COOLDOWN = 5000; // 5 Sekunden Cooldown nach Fehler
 
-    // Background Settings
+
     private final Setting<Boolean> background = sgBackground.add(new BoolSetting.Builder()
         .name("background")
         .description("Displays background.")
@@ -198,12 +198,12 @@ public class ClipboardHUD extends HudElement {
     private void updateClipboard() {
         long currentTime = System.currentTimeMillis();
 
-        // Skip update wenn wir vor kurzem einen Fehler hatten
+
         if (clipboardError && currentTime - lastErrorTime < ERROR_COOLDOWN) {
             return;
         }
 
-        // Normal Update-Intervall prüfen
+
         if (currentTime - lastUpdate < UPDATE_INTERVAL) {
             return;
         }
@@ -217,15 +217,15 @@ public class ClipboardHUD extends HudElement {
                 return;
             }
 
-            // Erst prüfen ob überhaupt Text in der Zwischenablage ist
+
             long windowHandle = mc.getWindow().getHandle();
 
-            // Vorsichtig auf Clipboard zugreifen
+
             String clipboardContent = null;
             try {
                 clipboardContent = GLFW.glfwGetClipboardString(windowHandle);
             } catch (Exception e) {
-                // Clipboard enthält wahrscheinlich Nicht-Text-Daten
+
                 clipboardError = true;
                 lastErrorTime = currentTime;
                 return;
@@ -235,7 +235,7 @@ public class ClipboardHUD extends HudElement {
                 lastClipboardContent = clipboardContent;
                 clipboardError = false;
             } else {
-                // Null bedeutet meist Nicht-Text-Daten in Zwischenablage
+
                 clipboardError = true;
                 lastErrorTime = currentTime;
             }
@@ -243,7 +243,7 @@ public class ClipboardHUD extends HudElement {
         } catch (Exception e) {
             clipboardError = true;
             lastErrorTime = currentTime;
-            // Keine Console-Ausgabe mehr für bekannte Clipboard-Probleme
+
         }
     }
 

@@ -23,8 +23,8 @@ public class FakeDisconnect extends Module {
 
     @Override
     public void onActivate() {
-// Wenn das Modul aktiviert wird, tun wir nichts aktiv - die Mixin-Logik verhindert den Screen
-        info("FakeDisconnect activated");
+
+
     }
 
 

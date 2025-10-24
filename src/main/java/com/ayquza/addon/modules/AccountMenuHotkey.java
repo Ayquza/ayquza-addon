@@ -48,7 +48,7 @@ public class AccountMenuHotkey extends Module {
         .build()
     );
 
-    // Static service instance that runs globally
+
     private static GlobalHotkeyService globalService;
     private boolean keyPressed = false;
 
@@ -59,7 +59,7 @@ public class AccountMenuHotkey extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
-        // Nur im Spiel - für Ingame Hotkey
+
         if (!isActive() || mc == null) return;
 
         try {
@@ -136,7 +136,7 @@ public class AccountMenuHotkey extends Module {
         keyPressed = false;
         System.out.println("[AccountsHotkey] MODULE ACTIVATED!");
 
-        // Start the global service
+
         if (globalService == null || !globalService.isRunning()) {
             globalService = new GlobalHotkeyService(this);
             globalService.start();
@@ -150,7 +150,7 @@ public class AccountMenuHotkey extends Module {
     public void onDeactivate() {
         System.out.println("[AccountsHotkey] MODULE DEACTIVATED!");
 
-        // Don't stop the global service - let it run for other modules
+
 
         try {
             info("Accounts Hotkey deactivated!");
@@ -169,7 +169,7 @@ public class AccountMenuHotkey extends Module {
         return hotkey.get();
     }
 
-    // Globaler Service der unabhängig läuft
+
     public static class GlobalHotkeyService {
         private Thread hotkeyThread;
         private boolean running = false;
@@ -197,7 +197,7 @@ public class AccountMenuHotkey extends Module {
 
                         Screen currentScreen = mc.currentScreen;
 
-                        // Check if we're in a menu
+
                         boolean inMenu = currentScreen instanceof MultiplayerScreen ||
                             currentScreen instanceof TitleScreen ||
                             currentScreen instanceof DisconnectedScreen ||
@@ -206,7 +206,7 @@ public class AccountMenuHotkey extends Module {
                                     currentScreen.getClass().getSimpleName().toLowerCase().contains("multiplayer")));
 
                         if (inMenu) {
-                            // Check F6 directly via GLFW
+
                             try {
                                 long window = mc.getWindow().getHandle();
                                 int keyState = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_F6);
@@ -217,7 +217,7 @@ public class AccountMenuHotkey extends Module {
                                         System.out.println("[GlobalHotkeyService] F6 detected in menu! Screen: " +
                                             currentScreen.getClass().getSimpleName());
 
-                                        // Execute in main thread
+
                                         mc.execute(() -> {
                                             if (module.getDelay() > 0) {
                                                 new Thread(() -> {
