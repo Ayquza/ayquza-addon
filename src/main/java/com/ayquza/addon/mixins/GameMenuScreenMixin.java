@@ -35,7 +35,11 @@ public class GameMenuScreenMixin extends Screen {
         int buttonHeight = disconnectButton.getHeight();
         int spacing = 5;
 
-        int quickJoinX = disconnectButton.getX() - (buttonWidth + spacing);
+        // Smaller Quick Join button
+        int quickJoinWidth = 60;  // smaller width
+        int quickJoinHeight = 18; // smaller height
+
+        int quickJoinX = disconnectButton.getX() - (quickJoinWidth + spacing);
         int quickJoinY = disconnectButton.getY();
 
         int reconnectX = disconnectButton.getX();
@@ -44,7 +48,7 @@ public class GameMenuScreenMixin extends Screen {
         ButtonWidget quickJoinButton = ButtonWidget.builder(
             Text.literal("Quick Join"),
             button -> MinecraftClient.getInstance().setScreen(new QuickJoinScreen(this))
-        ).dimensions(quickJoinX, quickJoinY, buttonWidth, buttonHeight).build();
+        ).dimensions(quickJoinX, quickJoinY, quickJoinWidth, quickJoinHeight).build();
 
         ButtonWidget reconnectButton = ButtonWidget.builder(
             Text.literal("Reconnect"),
