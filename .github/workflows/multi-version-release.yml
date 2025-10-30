@@ -3,9 +3,9 @@ name: 🚀 Multi-Version Release
 on:
   push:
     tags:
-      - 'v*'           # Triggers on tags like v1.6, v1.0.0, etc.
-      - '[0-9]*'       # Also triggers on tags like 1.6, 1.0.0, etc.
-  workflow_dispatch:   # Manual trigger for testing
+      - 'v*'
+      - '[0-9]*'
+  workflow_dispatch:
     inputs:
       version:
         description: 'Version 1.5'
@@ -28,7 +28,7 @@ jobs:
 
     strategy:
       matrix:
-        minecraft_version: ["1.21.6", "1.21.7", "1.21.8"]
+        minecraft_version: ["1.21.6", "1.21.7", "1.21.8", "1.21.9", "1.21.10"]
 
     steps:
       - name: Checkout code
@@ -46,7 +46,6 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
           else
-            # Handle both v1.6 and 1.6 tag formats
             TAG_NAME="${GITHUB_REF#refs/tags/}"
             if [[ $TAG_NAME == v* ]]; then
               VERSION="${TAG_NAME#v}"
@@ -59,16 +58,11 @@ jobs:
 
       - name: Update gradle.properties for MC ${{ matrix.minecraft_version }}
         run: |
-          # Debug: Show original file
           echo "=== Original gradle.properties ==="
           cat gradle.properties
-
-          # Update all relevant properties for the MC version
           sed -i "s/minecraft_version=.*/minecraft_version=${{ matrix.minecraft_version }}/" gradle.properties
           sed -i "s/mod_version=.*/mod_version=${{ steps.version.outputs.version }}/" gradle.properties
           sed -i "s/archives_base_name=.*/archives_base_name=AyquzasGriefUtilityAddon-${{ matrix.minecraft_version }}/" gradle.properties
-
-          # Update yarn_mappings for corresponding MC version
           case "${{ matrix.minecraft_version }}" in
             "1.21.6")
               yarn_version="1.21.6+build.1"
@@ -79,11 +73,14 @@ jobs:
             "1.21.8")
               yarn_version="1.21.8+build.1"
               ;;
+            "1.21.9")
+              yarn_version="1.21.9+build.1"
+              ;;
+            "1.21.10")
+              yarn_version="1.21.10+build.1"
+              ;;
           esac
-
           sed -i "s/yarn_mappings=.*/yarn_mappings=$yarn_version/" gradle.properties
-
-          # Debug: Show updated file
           echo "=== Updated gradle.properties for MC ${{ matrix.minecraft_version }} ==="
           cat gradle.properties
 
@@ -96,10 +93,7 @@ jobs:
         run: |
           echo "=== Searching for built JARs ==="
           find build/libs -name "*.jar" -type f
-
-          # Find the built JAR file
           JAR_FILE=$(find build/libs -name "AyquzasGriefUtilityAddon-${{ matrix.minecraft_version }}-*.jar" -not -name "*-sources.jar" -not -name "*-dev.jar" | head -1)
-
           if [ -n "$JAR_FILE" ]; then
             NEW_NAME="AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc${{ matrix.minecraft_version }}.jar"
             cp "$JAR_FILE" "$NEW_NAME"
@@ -149,6 +143,8 @@ jobs:
             - ✅ Minecraft 1.21.6 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.6.jar`
             - ✅ Minecraft 1.21.7 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.7.jar`
             - ✅ Minecraft 1.21.8 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.8.jar`
+            - ✅ Minecraft 1.21.9 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.9.jar`
+            - ✅ Minecraft 1.21.10 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.10.jar`
 
             **📦 Installation:**
             1. Download the **matching** `.jar` file for your Minecraft version
