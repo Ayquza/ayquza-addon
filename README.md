@@ -1,6 +1,6 @@
 # Ayquza's Grief Utility Addon  
 
-⚠️ **Important:** This addon was made to be used with the **MLPI Scanner** — join us on [discord.gg/mlpi](https://discord.gg/mlpi).  
+⚠️ **Important:** This addon was made to be used with the **MLPI Scanner** — join us on [discord.gg/mlp1](https://dsc.gg/mlpi).  
 Big credits to **[@rbmkblaze](https://github.com/rbmkblaze)** for the login command!  
 
 ---
@@ -52,12 +52,24 @@ Additional login-related commands:
 - You can still walk around, explore and look at the world — but no block breaking, player interaction or server communication.  
 - If you get kicked, the module shows you a **chat message with the real kick reason**.  
 
-**Example:** You would normally see *"You are banned from this server!"* → instead, you stay in the world and see in chat:  
-[FakeDisconnect] Server kicked you for: You are banned from this server!
-
-
 Perfect for exploring or taking a last look at builds **after a disconnect** without instantly being thrown back to the title screen.  
 
+---
+
+### 🆕 Player Name Cycler Module 
+- Cycles through **all online player names** on the current server automatically.  
+- Automatically logs in with each name and reconnects to the server.  
+- Can **stop cycling when an OP account is detected**.  
+- Options include:  
+  - Set a **hotkey** to start/stop cycling.  
+  - **Reconnect delay** between account switches.  
+  - Automatically **add missing accounts** to your account manager.  
+  - **Debug mode** for detailed logs.  
+
+**Example:** You're on a server and want to cycle through online names to see which accounts have OP:  
+- Press the hotkey → module cycles through names → logs in → reconnects → stops when it finds an OP account.  
+
+  *(Suggestion from once_oh)*
 ---
 
 ### ⌨️ Quick Join Keybind Module  
@@ -68,33 +80,27 @@ Perfect for exploring or taking a last look at builds **after a disconnect** wit
 
 ---
 
+### 🔧 Custom Discord RPC Module  
+- Adds **custom Discord Rich Presence** support for the Ayquza Addon.  
+- Configure your own **application ID, images, and texts** directly in the Meteor settings.   
+- Includes in-game buttons to **update, restart, or test the RPC connection**.  
+
+---
+
 ### 📸 Disconnect Screenshot Module  
 - Automatically saves a screenshot **a few frames before you get disconnected**.  
 - Stored in a dedicated subfolder inside your screenshots directory (customizable).  
 - Perfect for situations like **server renovations**, where the server closes too quickly for a manual screenshot.  
 
- *Should work 100% of the time now :3*  (20ms delay should work the best)
-
----
-
-### 🔧 Custom Discord RPC Module  
-- Adds **custom Discord Rich Presence** support for the Ayquza Addon.  
-- Configure your own **application ID, images, and texts** directly in the Meteor settings.  
-- Optional **timestamp** support and a **debug mode** for easier troubleshooting.  
-- Includes in-game buttons to **update, restart, or test the RPC connection**.  
-
----
-
-### 🧹 Clear Cracked Account Module  
-- Clears all cracked accounts from the Meteor Account Manager.  
-- No more scrolling when adding a new account → also cleaner!  
+*Fake Disconnect Module kinda replaces this now since its always 100% guranteed* 
 
 ---
 
 ### 🔹 Small Extras  
 - Copy Server IP Module  
-- Current Clipboard HUD 
-- Meteor Account Manager Keybind Module  
+- Current Clipboard HUD  
+- Meteor Account Manager Keybind Module
+- Clear Cracked Account Module  
 
 ---
 
@@ -110,3 +116,4 @@ Feel free to DM me on Discord **@Ayquza** if you have new ideas or find bugs.
 
 ## ⚠️ Disclaimer  
 If you copy from this, please give me and **@rbmkblaze** proper credits.  
+
