@@ -35,9 +35,9 @@ public class GameMenuScreenMixin extends Screen {
         int buttonHeight = disconnectButton.getHeight();
         int spacing = 5;
 
-        // Smaller Quick Join button
-        int quickJoinWidth = 60;  // smaller width
-        int quickJoinHeight = 18; // smaller height
+        // Quick Join button - half the width of disconnect button, same height
+        int quickJoinWidth = buttonWidth / 2;
+        int quickJoinHeight = buttonHeight;
 
         int quickJoinX = disconnectButton.getX() - (quickJoinWidth + spacing);
         int quickJoinY = disconnectButton.getY();
