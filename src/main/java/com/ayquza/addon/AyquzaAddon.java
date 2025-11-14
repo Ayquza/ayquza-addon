@@ -30,8 +30,6 @@ public class AyquzaAddon extends MeteorAddon {
         System.out.println("[AyquzaAddon] AutoAccountsOnWhitelist module registered!");
         Modules.get().add(new ClipboardLoginModule());
         System.out.println("[AyquzaAddon] ClipboardLoginModule module registered!");
-        Modules.get().add(new ClearCrackedAccounts());
-        System.out.println("[AyquzaAddon] ClearCrackedAccounts module registered!");
         Modules.get().add(new CopyServerIPKeybind());
         System.out.println("[AyquzaAddon] CopyServerIPKeybind module registered!");
         Modules.get().add(new DisconnectScreenshot());
@@ -64,9 +62,7 @@ public class AyquzaAddon extends MeteorAddon {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("[AyquzaAddon] Addon is shutting down...");
 
-            // Cleanup ClearCrackedAccounts global scheduler
-            ClearCrackedAccounts.shutdownGlobalScheduler();
-            System.out.println("[AyquzaAddon] ClearCrackedAccounts scheduler cleaned up!");
+
 
             System.out.println("[AyquzaAddon] Addon shutdown complete!");
         }));

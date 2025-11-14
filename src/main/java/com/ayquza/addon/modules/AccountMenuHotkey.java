@@ -152,9 +152,7 @@ public class AccountMenuHotkey extends Module {
 
 
 
-        try {
-            info("Accounts Hotkey deactivated!");
-        } catch (Exception ignored) {}
+
     }
 
     public boolean isDebugMode() {
