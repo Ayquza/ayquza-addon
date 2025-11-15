@@ -1,119 +1,124 @@
-# Ayquza's Grief Utility Addon  
+# Ayquza's Grief Utility Addon
 
-⚠️ **Important:** This addon was made to be used with the **MLPI Scanner** — join us on [discord.gg/mlp1](https://dsc.gg/mlpi).  
-Big credits to **[@rbmkblaze](https://github.com/rbmkblaze)** for the login command!  
+A comprehensive Meteor Client addon designed for utility and automation, built to work seamlessly with the MLPI Scanner. Join our community at [discord.gg/mlp1](https://dsc.gg/mlpi).
 
----
-
-## ✨ Features  
-
-### 🔑 Login Command  
-Log into cracked accounts with:  
-- `.login (name)`  
-- `.l (name)`  
-
-(**Auto Reconnects you**)  
-
-Additional login-related commands:  
-- `.login clear` → clears all cracked accounts from the account manager  
-- `.login random`  
-- `.login remove`  
-- `.login list`  
+**Credits:** Special thanks to [@rbmkblaze](https://github.com/rbmkblaze) for the login command implementation.
 
 ---
 
-### ⌨️ Login Command Keybind Module  
-- Set a keybind in the module.  
-- When pressed, the addon will automatically run `.login (clipboard content)`.  
+## Core Features
 
-**Example:** Copy a name → press the keybind → instantly log in as that account.  
+### Login Command
+Quickly authenticate to cracked servers using the `.login` command (alias: `.l`).
 
-*Autoreconnect option included (enabled by default).*  
+**Usage:**
+```
+.login <username>
+.l <username>
+```
 
----
+**Additional Commands:**
+- `.login clear` - Remove all cracked accounts from the account manager
+- `.login random` - Connect with a random account
+- `.login remove` - Remove an account from the list
+- `.login list` - Display all saved accounts
 
-### 👤 Clipboard Reconnect Button (Disconnect Screen)  
-- Adds a **ClipboardReconnect button** below the Quick Join button in the disconnect screen.  
-- When pressed, it reconnects you with whatever name you currently have in your clipboard.  
+The command automatically reconnects you after switching accounts.
 
-**Example:** You get kicked for not being whitelisted → copy a whitelisted name → press **ClipboardReconnect** → instantly rejoin as that account.  
 
----
 
-### ⚡ Quick Join Buttons  
-- Adds **three Quick Join buttons** (Multiplayer Menu, Game Menu, Disconnect Screen).  
-- Uses the server address in your clipboard.  
-- Just copy an IP → press Quick Join → instantly connect.  
+### Login Command Keybind
+Bind a key to instantly login with the username currently in your clipboard. When triggered, executes `.login <clipboard>` automatically.
 
----
+Includes an optional auto-reconnect feature (enabled by default).
 
-### 🟥 Fake Disconnect Module  
-- Lets you **stay inside the world after a disconnect** instead of being kicked to the menu.  
-- You can still walk around, explore and look at the world — but no block breaking, player interaction or server communication.  
-- If you get kicked, the module shows you a **chat message with the real kick reason**.  
 
-Perfect for exploring or taking a last look at builds **after a disconnect** without instantly being thrown back to the title screen.  
 
----
+### Fake Disconnect
+Remain in the world after being disconnected from the server instead of being sent to the menu. Allows you to continue viewing the world, though server interaction is disabled.
 
-### 🆕 Player Name Cycler Module 
-- Cycles through **all online player names** on the current server automatically.  
-- Automatically logs in with each name and reconnects to the server.  
-- Can **stop cycling when an OP account is detected**.  
-- Options include:  
-  - Set a **hotkey** to start/stop cycling.  
-  - **Reconnect delay** between account switches.  
-  - Automatically **add missing accounts** to your account manager.  
-  - **Debug mode** for detailed logs.  
+The module displays the actual disconnect reason in chat. Useful for taking screenshots of builds or exploring the world state before leaving.
 
-**Example:** You're on a server and want to cycle through online names to see which accounts have OP:  
-- Press the hotkey → module cycles through names → logs in → reconnects → stops when it finds an OP account.  
 
-  *(Suggestion from once_oh)*
----
 
-### ⌨️ Quick Join Keybind Module  
-- Set a keybind in the module.  
-- When pressed, the addon automatically connects you to the server with the IP from your clipboard.  
+### Quick Join Buttons
+Three Quick Join buttons added to:
+- Multiplayer Menu
+- Game Menu  
+- Disconnect Screen
 
-**Example:** Copy an IP → press the keybind → instantly connect.  
+Copy a server IP to your clipboard and press Quick Join to connect instantly.
 
----
 
-### 🔧 Custom Discord RPC Module  
-- Adds **custom Discord Rich Presence** support for the Ayquza Addon.  
-- Configure your own **application ID, images, and texts** directly in the Meteor settings.   
-- Includes in-game buttons to **update, restart, or test the RPC connection**.  
 
----
+### Hotbar Stack Refill
+Automatically refills hotbar stacks from your main inventory when they drop below a configurable threshold. 
+For TrouserStreaks AutoMountain Module because I couldn't figure out how to do it with trouserstreaks! 
 
-### 📸 Disconnect Screenshot Module  
-- Automatically saves a screenshot **a few frames before you get disconnected**.  
-- Stored in a dedicated subfolder inside your screenshots directory (customizable).  
-- Perfect for situations like **server renovations**, where the server closes too quickly for a manual screenshot.  
+**Settings:**
+- Threshold slider (1-64) - Refills stacks below this count
+- Delay between refills (0-20 ticks)
+- All hotbar slots mode or selected slot only
 
-*Fake Disconnect Module kinda replaces this now since its always 100% guranteed* 
 
----
 
-### 🔹 Small Extras  
-- Copy Server IP Module  
-- Current Clipboard HUD  
-- Meteor Account Manager Keybind Module
-- Clear Cracked Account Module  
+### Quick Join Keybind
+Bind a key to connect to the server IP in your clipboard. No need to navigate through menus.
 
----
 
-### 🚀 More things to come...  
-*Please give me suggestions <3*  
 
----
+### Clipboard Reconnect Button
+Adds a reconnect button to the disconnect screen that uses your clipboard content as the username. Located below the standard Quick Join button.
 
-## 💡 Contributing  
-Feel free to DM me on Discord **@Ayquza** if you have new ideas or find bugs.  
+Use case: Getting kicked for not being whitelisted? Copy a valid username, press Clipboard Reconnect, and rejoin immediately.
+
+
+
+### Player Name Cycler
+Automatically cycles through all online player names on the current server, logging in with each name and reconnecting.
+
+
+**Features:**
+- Optional stop when an OP account is detected
+- Configurable hotkey to start/stop cycling
+- Adjustable reconnect delay between account switches
+- Automatically adds missing accounts to your account manager
+- Debug mode for detailed logging
+
+**Suggested by:** once_oh
+
+
+### Custom Discord RPC
+Configure custom Discord Rich Presence for the addon with your own application ID, images, and status text.
+
+Includes in-game controls to update, restart, or test the RPC connection directly from Meteor settings.
 
 ---
 
-## ⚠️ Disclaimer  
-If you copy from this, please give me and **@rbmkblaze** proper credits.  
+## Additional kinda useless Utilities
 
+- **Copy Server IP** - Quick copy current server address
+- **Current Clipboard HUD** - Display clipboard contents on your HUD
+- **Meteor Account Manager Keybind** - Bind a key to open the account manager
+- **Disconnect Screenshot** *(largely obsolete due to Fake Disconnect module)*
+
+---
+
+## Installation
+
+1. Download the latest release
+2. Place the JAR file in your `.minecraft/mods` folder
+3. Launch Minecraft with Meteor Client installed
+4. Configure the addon modules in the Meteor Client menu
+
+---
+
+## Contributing
+
+Found a bug or have a feature suggestion? Contact me on Discord: **@Ayquza**
+
+---
+
+## License & Credits
+
+If you use or reference code from this project, please provide proper credit to both Ayquza and [@rbmkblaze](https://github.com/rbmkblaze).
