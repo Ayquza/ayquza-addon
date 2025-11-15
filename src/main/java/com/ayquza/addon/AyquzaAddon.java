@@ -42,7 +42,8 @@ public class AyquzaAddon extends MeteorAddon {
         System.out.println("[AyquzaAddon] FakeDisconnect module registered!");
         Modules.get().add(new PlayerNameCyclerModule());
         System.out.println("[AyquzaAddon] PlayerNameCyclerModule module registered!");
-
+        Modules.get().add(new HotbarStackRefill());
+        System.out.println("[AyquzaAddon] HotbarStackRefill module registered!");
 
         // Register HUD elements
         Hud.get().register(ClipboardHUD.INFO);
