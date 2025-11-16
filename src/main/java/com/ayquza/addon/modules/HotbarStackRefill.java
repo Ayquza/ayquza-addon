@@ -35,8 +35,15 @@ public class HotbarStackRefill extends Module {
 
     private final Setting<Boolean> allSlots = sgGeneral.add(new BoolSetting.Builder()
         .name("all-hotbar-slots")
-        .description("Monitor and refill all hotbar slots. If disabled, only refills the selected slot.")
+        .description("Monitor and refill all hotbar slots. If disabled, only refills the selected slot. (Only Inventory refill source)")
         .defaultValue(true)
+        .build()
+    );
+
+    private final Setting<RefillSource> refillSource = sgGeneral.add(new EnumSetting.Builder<RefillSource>()
+        .name("refill-source")
+        .description("Where to take items from when refilling.")
+        .defaultValue(RefillSource.InventoryOnly)
         .build()
     );
 
@@ -64,19 +71,51 @@ public class HotbarStackRefill extends Module {
             if (hotbarStack.isEmpty()) continue;
             if (hotbarStack.getCount() >= threshold.get()) continue;
 
-            int foundSlot = -1;
-            for (int invSlot = 9; invSlot < 36; invSlot++) {
-                ItemStack invStack = mc.player.getInventory().getStack(invSlot);
-                if (!invStack.isEmpty() && ItemStack.areItemsEqual(invStack, hotbarStack)) {
-                    foundSlot = invSlot;
-                    break;
-                }
-            }
+            int foundSlot = findRefillSlot(hotbarStack, hotbarSlot);
 
             if (foundSlot == -1) continue;
 
             InvUtils.move().from(foundSlot).to(hotbarSlot);
             return;
         }
+    }
+
+    private int findRefillSlot(ItemStack targetStack, int excludeSlot) {
+        RefillSource source = refillSource.get();
+
+        if (allSlots.get()) {
+            return searchRange(targetStack, excludeSlot, 9, 36);
+        }
+
+        if (source == RefillSource.Both) {
+            int invSlot = searchRange(targetStack, excludeSlot, 9, 36);
+            if (invSlot != -1) return invSlot;
+
+            return searchRange(targetStack, excludeSlot, 0, 9);
+        }
+
+        if (source == RefillSource.InventoryOnly) {
+            return searchRange(targetStack, excludeSlot, 9, 36);
+        }
+
+        return searchRange(targetStack, excludeSlot, 0, 9);
+    }
+
+    private int searchRange(ItemStack targetStack, int excludeSlot, int start, int end) {
+        for (int slot = start; slot < end; slot++) {
+            if (slot == excludeSlot) continue;
+
+            ItemStack stack = mc.player.getInventory().getStack(slot);
+            if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, targetStack)) {
+                return slot;
+            }
+        }
+        return -1;
+    }
+
+    public enum RefillSource {
+        InventoryOnly,
+        HotbarOnly,
+        Both
     }
 }
