@@ -69,6 +69,7 @@ public class HotbarStackRefill extends Module {
             ItemStack hotbarStack = mc.player.getInventory().getStack(hotbarSlot);
 
             if (hotbarStack.isEmpty()) continue;
+            if (!isStackableItem(hotbarStack)) continue;
             if (hotbarStack.getCount() >= threshold.get()) continue;
 
             int foundSlot = findRefillSlot(hotbarStack, hotbarSlot);
@@ -78,6 +79,11 @@ public class HotbarStackRefill extends Module {
             InvUtils.move().from(foundSlot).to(hotbarSlot);
             return;
         }
+    }
+
+    private boolean isStackableItem(ItemStack stack) {
+        int maxCount = stack.getMaxCount();
+        return maxCount == 16 || maxCount == 64;
     }
 
     private int findRefillSlot(ItemStack targetStack, int excludeSlot) {
