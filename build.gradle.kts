@@ -33,7 +33,7 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${properties["loader_version"] as String}")
 
     // Meteor
-    modImplementation("meteordevelopment:meteor-client:${properties["minecraft_version"] as String}-SNAPSHOT")
+    implementation("meteordevelopment:meteor-client:1.21.11-SNAPSHOT")
 }
 
 tasks {
