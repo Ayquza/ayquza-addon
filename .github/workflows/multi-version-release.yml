@@ -23,7 +23,8 @@ jobs:
           echo "Tag Name: ${{ github.ref_name }}"
           echo "Repository: ${{ github.repository }}"
 
-  build-and-release:
+  # Build job for MC 1.21.6-1.21.8 (main branch)
+  build-legacy-versions:
     runs-on: ubuntu-latest
 
     strategy:
@@ -31,8 +32,10 @@ jobs:
         minecraft_version: ["1.21.6", "1.21.7", "1.21.8"]
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Repository (master branch)
         uses: actions/checkout@v4
+        with:
+          ref: master  # Change to 'master' if that's your default branch
 
       - name: Setup Java Environment
         uses: actions/setup-java@v4
@@ -112,8 +115,90 @@ jobs:
           name: AyquzasGriefUtilityAddon${{ matrix.minecraft_version }}
           path: ${{ env.JAR_NAME }}
 
+  # Build job for MC 1.21.11 (mc-1.21.11 branch)
+  build-new-version:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        minecraft_version: ["1.21.11"]
+
+    steps:
+      - name: Checkout Repository (mc-1.21.11 branch)
+        uses: actions/checkout@v4
+        with:
+          ref: mc-1.21.11
+
+      - name: Setup Java Environment
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Extract Version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+            if [[ $TAG_NAME == v* ]]; then
+              VERSION="${TAG_NAME#v}"
+            else
+              VERSION="$TAG_NAME"
+            fi
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          fi
+          echo "Detected version from tag: ${GITHUB_REF#refs/tags/}"
+
+      - name: Configure Gradle Properties for MC ${{ matrix.minecraft_version }}
+        run: |
+          echo "=== Original gradle.properties ==="
+          cat gradle.properties
+
+          sed -i "s/minecraft_version=.*/minecraft_version=${{ matrix.minecraft_version }}/" gradle.properties
+          sed -i "s/mod_version=.*/mod_version=${{ steps.version.outputs.version }}/" gradle.properties
+          sed -i "s/archives_base_name=.*/archives_base_name=AyquzasGriefUtilityAddon-${{ matrix.minecraft_version }}/" gradle.properties
+
+          # Update Yarn mappings for 1.21.11
+          yarn_version="1.21.11+build.3"
+          sed -i "s/yarn_mappings=.*/yarn_mappings=$yarn_version/" gradle.properties
+
+          echo "=== Updated gradle.properties for MC ${{ matrix.minecraft_version }} ==="
+          cat gradle.properties
+
+      - name: Build with Gradle
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build --info
+
+      - name: Package and Rename JAR
+        run: |
+          echo "=== Searching for built JARs ==="
+          find build/libs -name "*.jar" -type f
+
+          JAR_FILE=$(find build/libs -name "AyquzasGriefUtilityAddon-${{ matrix.minecraft_version }}-*.jar" -not -name "*-sources.jar" -not -name "*-dev.jar" | head -1)
+
+          if [ -n "$JAR_FILE" ]; then
+            NEW_NAME="AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc${{ matrix.minecraft_version }}.jar"
+            cp "$JAR_FILE" "$NEW_NAME"
+            echo "JAR_NAME=$NEW_NAME" >> $GITHUB_ENV
+            echo "✅ Created: $NEW_NAME (from $JAR_FILE)"
+            ls -la "$NEW_NAME"
+          else
+            echo "❌ No JAR file found! Available files:"
+            find build/libs -name "*.jar"
+            exit 1
+          fi
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: AyquzasGriefUtilityAddon${{ matrix.minecraft_version }}
+          path: ${{ env.JAR_NAME }}
+
   create-release:
-    needs: build-and-release
+    needs: [build-legacy-versions, build-new-version]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
 
@@ -143,6 +228,7 @@ jobs:
             - Minecraft 1.21.6 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.6.jar`
             - Minecraft 1.21.7 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.7.jar`
             - Minecraft 1.21.8 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.8.jar`
+            - Minecraft 1.21.11 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.11.jar`
 
             **Installation:**
             1. Download the matching `.jar` file for your Minecraft version
