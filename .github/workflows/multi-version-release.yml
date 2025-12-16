@@ -28,7 +28,7 @@ jobs:
 
     strategy:
       matrix:
-        minecraft_version: ["1.21.6", "1.21.7", "1.21.8"]
+        minecraft_version: ["1.21.6", "1.21.7", "1.21.8", "1.21.9", "1.21.10", "1.21.11"]
 
     steps:
       - name: Checkout Repository
@@ -74,6 +74,15 @@ jobs:
               ;;
             "1.21.8")
               yarn_version="1.21.8+build.1"
+              ;;
+            "1.21.9")
+              yarn_version="1.21.9+build.1"
+              ;;
+            "1.21.10")
+              yarn_version="1.21.10+build.3"
+              ;;
+            "1.21.11")
+              yarn_version="1.21.11+build.3"
               ;;
           esac
 
@@ -143,6 +152,9 @@ jobs:
             - Minecraft 1.21.6 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.6.jar`
             - Minecraft 1.21.7 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.7.jar`
             - Minecraft 1.21.8 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.8.jar`
+            - Minecraft 1.21.9 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.9.jar`
+            - Minecraft 1.21.10 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.10.jar`
+            - Minecraft 1.21.11 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.11.jar`
 
             **Installation:**
             1. Download the matching `.jar` file for your Minecraft version
