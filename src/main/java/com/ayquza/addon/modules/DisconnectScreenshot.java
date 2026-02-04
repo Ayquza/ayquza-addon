@@ -9,6 +9,7 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
+import static org.lwjgl.glfw.GLFW.*;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -118,10 +119,9 @@ public class DisconnectScreenshot extends Module {
                 info("Taking disconnect screenshot (attempt " + (attemptCount + 1) + ")...");
             }
 
-            // Back to your working method but with immediate timing
             mc.execute(() -> {
                 try {
-                    // Priority 1: Keybind approach (usually most reliable)
+                    // Keybind approach (most reliable)
                     if (mc.options != null && mc.options.screenshotKey != null) {
                         if (enableNotification.get()) {
                             info("Using keybind approach...");
@@ -129,17 +129,17 @@ public class DisconnectScreenshot extends Module {
 
                         mc.options.screenshotKey.setPressed(true);
 
-                        // Release after very short delay (your working method)
+                        // Release after very short delay
                         new Thread(() -> {
                             try {
-                                Thread.sleep(10); // Very short delay like before
+                                Thread.sleep(10);
                                 mc.execute(() -> mc.options.screenshotKey.setPressed(false));
                             } catch (Exception e) {
                                 // Ignore errors here
                             }
                         }).start();
 
-                        // Mark screenshot as "taken" after short delay (your working method)
+                        // Mark screenshot as "taken" after short delay
                         new Thread(() -> {
                             try {
                                 Thread.sleep(200);
@@ -150,43 +150,10 @@ public class DisconnectScreenshot extends Module {
                         }).start();
                     }
 
-                    // Priority 2: Direct keyboard event as backup
-                    if (!screenshotTaken) {
-                        try {
-                            if (enableNotification.get()) {
-                                info("Using keyboard event backup...");
-                            }
-
-                            long window = mc.getWindow().getHandle();
-
-                            mc.keyboard.onKey(window, org.lwjgl.glfw.GLFW.GLFW_KEY_F2, 0,
-                                org.lwjgl.glfw.GLFW.GLFW_PRESS, 0);
-
-                            new Thread(() -> {
-                                try {
-                                    Thread.sleep(20);
-                                    mc.execute(() -> {
-                                        mc.keyboard.onKey(window, org.lwjgl.glfw.GLFW.GLFW_KEY_F2, 0,
-                                            org.lwjgl.glfw.GLFW.GLFW_RELEASE, 0);
-                                    });
-                                    Thread.sleep(200);
-                                    screenshotTaken = true;
-                                } catch (Exception e) {
-                                    // Ignore errors here
-                                }
-                            }).start();
-
-                        } catch (Exception e2) {
-                            if (enableNotification.get()) {
-                                warning("Keyboard event failed: " + e2.getMessage());
-                            }
-                        }
-                    }
-
-                    // Screenshot processing after delay - back to your working timing
+                    // Screenshot processing after delay
                     new Thread(() -> {
                         try {
-                            Thread.sleep(1500); // Your original timing that worked
+                            Thread.sleep(1500);
                             moveLatestScreenshot();
                         } catch (Exception e) {
                             if (enableNotification.get()) {

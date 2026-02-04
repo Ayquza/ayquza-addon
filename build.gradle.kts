@@ -1,5 +1,5 @@
 plugins {
-    id("fabric-loom") version "1.11-SNAPSHOT"
+    id("fabric-loom") version "1.14-SNAPSHOT"
 }
 
 base {
@@ -8,11 +8,11 @@ base {
     group = properties["maven_group"] as String
 }
 
-// Add this loom configuration
 loom {
     mixin {
         defaultRefmapName = "ayquza-addon.refmap.json"
     }
+    accessWidenerPath = file("src/main/resources/ayquza-addon.accesswidener")
 }
 
 repositories {
@@ -28,12 +28,12 @@ repositories {
 
 dependencies {
     // Fabric
-    minecraft("com.mojang:minecraft:${properties["minecraft_version"] as String}")
-    mappings("net.fabricmc:yarn:${properties["yarn_mappings"] as String}:v2")
-    modImplementation("net.fabricmc:fabric-loader:${properties["loader_version"] as String}")
+    minecraft("com.mojang:minecraft:${properties["minecraft_version"]}")
+    mappings("net.fabricmc:yarn:${properties["yarn_mappings"]}:v2")
+    modImplementation("net.fabricmc:fabric-loader:${properties["loader_version"]}")
 
     // Meteor
-    modImplementation("meteordevelopment:meteor-client:${properties["minecraft_version"] as String}-SNAPSHOT")
+    modImplementation("meteordevelopment:meteor-client:${properties["minecraft_version"]}-SNAPSHOT")
 }
 
 tasks {
@@ -68,7 +68,5 @@ tasks {
     withType<JavaCompile> {
         options.encoding = "UTF-8"
         options.release = 21
-        options.compilerArgs.add("-Xlint:deprecation")
-        options.compilerArgs.add("-Xlint:unchecked")
     }
 }

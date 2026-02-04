@@ -144,7 +144,7 @@ public class PlayerNameCyclerModule extends Module {
 
         playerNames.clear();
         for (PlayerListEntry player : mc.getNetworkHandler().getPlayerList()) {
-            String name = player.getProfile().getName();
+            String name = player.getProfile().name();
             if (name != null && !name.isEmpty()) {
                 playerNames.add(name);
             }
@@ -161,7 +161,7 @@ public class PlayerNameCyclerModule extends Module {
             return;
         }
 
-        String currentPlayerName = mc.player.getGameProfile().getName();
+        String currentPlayerName = mc.player.getGameProfile().name();
         playerNames.removeIf(name -> name.equalsIgnoreCase(currentPlayerName));
 
         if (playerNames.isEmpty()) {
@@ -289,7 +289,7 @@ public class PlayerNameCyclerModule extends Module {
 
                     if (!wasCreative && isCreativeNow) {
                         info("§aAccount has OP! Stopping cycle.");
-                        info("§aSuccessfully found OP account: §e" + mc.player.getGameProfile().getName());
+                        info("§aSuccessfully found OP account: §e" + mc.player.getGameProfile().name());
                         stopCycling();
                     }  else {
                         if (debugMode.get()) {

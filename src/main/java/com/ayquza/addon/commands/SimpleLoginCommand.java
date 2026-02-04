@@ -19,9 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
-import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
-import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+
 
 public class SimpleLoginCommand extends Command {
     public SimpleLoginCommand() {
