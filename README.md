@@ -56,17 +56,16 @@ Automatically refills hotbar stacks from your main inventory when they drop belo
 For TrouserStreaks AutoMountain Module because I couldn't figure out how to do it with trouserstreaks! 
 
 
-
-### AirSignPlace
-Places a block where your crosshair is pointing at and optionally a sign on top.
-(AirPlace from meteor with the addition to automatically place a sign on top)
-
-
-
 **Settings:**
 - Threshold slider (1-64) - Refills stacks below this count
 - Delay between refills (0-20 ticks)
 - All hotbar slots mode or selected slot only
+
+
+
+### AirSignPlace
+Places a block where your crosshair is pointing at and optionally a sign on top.
+(AirPlace from meteor with the addition to automatically place a sign on top)
 
 
 
