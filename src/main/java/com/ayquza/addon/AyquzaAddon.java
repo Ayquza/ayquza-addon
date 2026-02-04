@@ -44,6 +44,8 @@ public class AyquzaAddon extends MeteorAddon {
         System.out.println("[AyquzaAddon] PlayerNameCyclerModule module registered!");
         Modules.get().add(new HotbarStackRefill());
         System.out.println("[AyquzaAddon] HotbarStackRefill module registered!");
+        Modules.get().add(new AirSignPlace());
+        System.out.println("[AyquzaAddon] AirSignPlace module registered!");
 
         // Register HUD elements
         Hud.get().register(ClipboardHUD.INFO);
