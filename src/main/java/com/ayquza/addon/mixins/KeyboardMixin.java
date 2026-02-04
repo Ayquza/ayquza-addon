@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
+import net.minecraft.client.input.KeyInput;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,7 +28,8 @@ public class KeyboardMixin {
     private static final long HOTKEY_CACHE_TIME = 5000;
 
     @Inject(method = "onKey", at = @At("HEAD"))
-    private void onKeyPressed(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
+    private void onKeyPressed(long window, int action, KeyInput input, CallbackInfo ci) {
+        int key = input.key();
         int hotkeyCode = getConfiguredHotkey();
         if (hotkeyCode == -1 || key != hotkeyCode) return;
 

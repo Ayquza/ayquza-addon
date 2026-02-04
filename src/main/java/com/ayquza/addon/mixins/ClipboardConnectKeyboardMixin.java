@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import org.lwjgl.glfw.GLFW;
@@ -28,7 +29,8 @@ public class ClipboardConnectKeyboardMixin {
     private static final long CLIPBOARD_HOTKEY_CACHE_TIME = 5000;
 
     @Inject(method = "onKey", at = @At("HEAD"))
-    private void onClipboardKeyPressed(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
+    private void onClipboardKeyPressed(long window, int action, KeyInput input, CallbackInfo ci) {
+        int key = input.key(); // Key-Code aus dem KeyInput Objekt holen
         int hotkeyCode = getConfiguredClipboardHotkey();
         if (hotkeyCode == -1 || key != hotkeyCode) return;
 

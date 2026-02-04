@@ -10,9 +10,9 @@ base {
 
 loom {
     mixin {
+        useLegacyMixinAp = true
         defaultRefmapName = "ayquza-addon.refmap.json"
     }
-    accessWidenerPath = file("src/main/resources/ayquza-addon.accesswidener")
 }
 
 repositories {
