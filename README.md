@@ -81,6 +81,21 @@ Use case: Getting kicked for not being whitelisted? Copy a valid username, press
 
 
 
+### Crash Command 
+Command Complete Crash. Crashes servers using a stack overflow.
+
+From 0x06's Griefing Utils
+
+
+
+### Cracked Kick Command & Module 
+Kicks a player on a cracked server. Configure with the module that has the same name.
+Command: .ckick / .cracked-kick
+
+From 0x06's Griefing Utils
+
+
+
 ### Player Name Cycler
 Automatically cycles through all online player names on the current server, logging in with each name and reconnecting.
 
@@ -101,6 +116,7 @@ Configure custom Discord Rich Presence for the addon with your own application I
 Includes in-game controls to update, restart, or test the RPC connection directly from Meteor settings.
 
 ---
+
 
 ## Additional kinda useless Utilities
 
