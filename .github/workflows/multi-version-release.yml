@@ -23,13 +23,12 @@ jobs:
           echo "Tag Name: ${{ github.ref_name }}"
           echo "Repository: ${{ github.repository }}"
 
-  # Build job for MC 1.21.6-1.21.8 (main branch)
   build-legacy-versions:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        minecraft_version: ["1.21.6", "1.21.7", "1.21.8"]
+        minecraft_version: ["1.21.8"]
 
     steps:
       - name: Checkout Repository (master branch)
@@ -69,12 +68,6 @@ jobs:
           sed -i "s/archives_base_name=.*/archives_base_name=AyquzasGriefUtilityAddon-${{ matrix.minecraft_version }}/" gradle.properties
 
           case "${{ matrix.minecraft_version }}" in
-            "1.21.6")
-              yarn_version="1.21.6+build.1"
-              ;;
-            "1.21.7")
-              yarn_version="1.21.7+build.1"
-              ;;
             "1.21.8")
               yarn_version="1.21.8+build.1"
               ;;
@@ -115,13 +108,12 @@ jobs:
           name: AyquzasGriefUtilityAddon${{ matrix.minecraft_version }}
           path: ${{ env.JAR_NAME }}
 
-  # Build job for MC 1.21.10-1.21.11 (mc-1.21.11 branch)
   build-new-versions:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        minecraft_version: ["1.21.10", "1.21.11"]
+        minecraft_version: ["1.21.11"]
 
     steps:
       - name: Checkout Repository (mc-1.21.11 branch)
@@ -160,11 +152,7 @@ jobs:
           sed -i "s/mod_version=.*/mod_version=${{ steps.version.outputs.version }}/" gradle.properties
           sed -i "s/archives_base_name=.*/archives_base_name=AyquzasGriefUtilityAddon-${{ matrix.minecraft_version }}/" gradle.properties
 
-          # Update Yarn mappings for 1.21.10-1.21.11
           case "${{ matrix.minecraft_version }}" in
-            "1.21.10")
-              yarn_version="1.21.10+build.1"
-              ;;
             "1.21.11")
               yarn_version="1.21.11+build.3"
               ;;
@@ -233,11 +221,7 @@ jobs:
             ## AyquzasGriefUtilityAddon v${{ steps.version.outputs.version }}
 
             **Supported Minecraft Versions:**
-            - Minecraft 1.21.6 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.6.jar`
-            - Minecraft 1.21.7 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.7.jar`
             - Minecraft 1.21.8 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.8.jar`
-
-            - Minecraft 1.21.10 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.10.jar`
             - Minecraft 1.21.11 → `AyquzasGriefUtilityAddon-v${{ steps.version.outputs.version }}-mc1.21.11.jar`
 
             **Installation:**
