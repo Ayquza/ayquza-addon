@@ -1,5 +1,7 @@
 package com.ayquza.addon;
 
+import com.ayquza.addon.commands.CommandCompleteCrash;
+import com.ayquza.addon.commands.CrackedKickCommand;
 import com.ayquza.addon.commands.SimpleLoginCommand;
 import com.ayquza.addon.hud.ClipboardHUD;
 import com.ayquza.addon.modules.*;
@@ -15,6 +17,8 @@ public class AyquzaAddon extends MeteorAddon {
     public static final Category CATEGORY = new Category("AyquzaAddon");
 
     private static final SimpleLoginCommand LOGIN_COMMAND = new SimpleLoginCommand();
+    private static final CrackedKickCommand CRACKED_KICK_COMMAND = new CrackedKickCommand();
+    private static final CommandCompleteCrash COMMAND_COMPLETE_CRASH = new CommandCompleteCrash();
 
     @Override
     public void onInitialize() {
@@ -24,6 +28,11 @@ public class AyquzaAddon extends MeteorAddon {
         // Register commands
         Commands.add(LOGIN_COMMAND);
         MeteorClient.EVENT_BUS.subscribe(LOGIN_COMMAND);
+        Commands.add(CRACKED_KICK_COMMAND);
+        MeteorClient.EVENT_BUS.subscribe(CRACKED_KICK_COMMAND);
+        Commands.add(COMMAND_COMPLETE_CRASH);
+        MeteorClient.EVENT_BUS.subscribe(COMMAND_COMPLETE_CRASH);
+
 
         // Register modules
         Modules.get().add(new AccountMenuHotkey());
@@ -46,6 +55,9 @@ public class AyquzaAddon extends MeteorAddon {
         System.out.println("[AyquzaAddon] HotbarStackRefill module registered!");
         Modules.get().add(new AirSignPlace());
         System.out.println("[AyquzaAddon] AirSignPlace module registered!");
+        Modules.get().add(new CrackedKickModule());
+        System.out.println("[AyquzaAddon] CrackedKick module registered!");
+
 
         // Register HUD elements
         Hud.get().register(ClipboardHUD.INFO);
