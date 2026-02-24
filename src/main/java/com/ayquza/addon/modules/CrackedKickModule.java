@@ -5,7 +5,7 @@ import com.mojang.authlib.GameProfile;
 
 
 import io.netty.channel.ChannelFuture;
-import net.minecraft.network.NetworkingBackend;
+
 import net.minecraft.network.DisconnectionInfo;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.BoolSetting;
@@ -92,7 +92,7 @@ public class CrackedKickModule extends Module {
         ClientConnection connection = new ClientConnection(NetworkSide.CLIENTBOUND);
 
         CompletableFuture.runAsync(() -> {
-            ChannelFuture future = ClientConnection.connect(address, NetworkingBackend.remote(mc.options.shouldUseNativeTransport()), connection);
+            ChannelFuture future = ClientConnection.connect(address, mc.options.shouldUseNativeTransport(), connection);
             future.awaitUninterruptibly(5000, TimeUnit.MILLISECONDS);
 
             if (!future.isSuccess()) {
@@ -131,7 +131,7 @@ public class CrackedKickModule extends Module {
                 }
             });
 
-            connection.send(new LoginHelloC2SPacket(profile.name(), profile.id()));
+            connection.send(new LoginHelloC2SPacket(profile.getName(), profile.getId()));
 
             try {
                 Thread.sleep(5000);
