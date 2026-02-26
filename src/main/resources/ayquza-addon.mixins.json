@@ -11,7 +11,10 @@
     "KeyboardMixin",
     "DisconnectScreenMixin",
     "ClipboardConnectKeyboardMixin",
-    "ClientCommonNetworkHandlerMixin"
+    "ClientCommonNetworkHandlerMixin",
+    "MultiplayerScreenAccessor",
+    "ServerEntryAccessor"
+
 
 
 
