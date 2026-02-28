@@ -57,6 +57,11 @@ public class AyquzaAddon extends MeteorAddon {
         System.out.println("[AyquzaAddon] AirSignPlace module registered!");
         Modules.get().add(new CrackedKickModule());
         System.out.println("[AyquzaAddon] CrackedKick module registered!");
+        Modules.get().add(new ClearCrackedAccounts());
+        System.out.println("[AyquzaAddon] ClearCrackedAccounts module registered!");
+        Modules.get().add(new ClearCurrentServer());
+        System.out.println("[AyquzaAddon] ClearCurrentServer module registered!");
+
 
 
         // Register HUD elements
