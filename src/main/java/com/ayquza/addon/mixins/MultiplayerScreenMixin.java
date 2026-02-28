@@ -16,6 +16,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.ayquza.addon.gui.QuickJoinScreen;
+import com.ayquza.addon.modules.ClearCurrentServer;
+import meteordevelopment.meteorclient.systems.modules.Modules;
+import meteordevelopment.meteorclient.utils.misc.Keybind;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
 
 @Mixin(MultiplayerScreen.class)
 public abstract class MultiplayerScreenMixin extends Screen {
@@ -81,6 +86,22 @@ public abstract class MultiplayerScreenMixin extends Screen {
         nameSearchField.setChangedListener(text -> applyFilter());
         this.addDrawableChild(nameSearchField);
     }
+
+    @Inject(method = "keyPressed", at = @At("HEAD"))
+    private void onKeyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
+        ClearCurrentServer module = Modules.get().get(ClearCurrentServer.class);
+        if (module == null || !module.isActive()) return;
+
+        Keybind keybind = module.getRemoveSelectedKey();
+        if (keybind == null || !keybind.isSet()) return;
+        if (keyCode != keybind.getValue()) return;
+
+        if (serverListWidget == null) return;
+        if (!(serverListWidget.getSelectedOrNull() instanceof MultiplayerServerListWidget.ServerEntry)) return;
+
+        ((MultiplayerScreenAccessor) (Object) this).invokeRemoveEntry(true);
+    }
+
 
     private void applyFilter() {
         if (serverListWidget == null) return;
