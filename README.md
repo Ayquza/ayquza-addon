@@ -81,6 +81,11 @@ Use case: Getting kicked for not being whitelisted? Copy a valid username, press
 
 
 
+### Search function for Server names and Server MOTD'S
+Added two search fields to the bottom-left of the Multiplayer screen. One field filters servers by name, the other filters by MOTD (server description). The list updates in real-time as you type.
+
+
+
 ### Crash Command 
 Command Complete Crash. Crashes servers using a stack overflow.
 
