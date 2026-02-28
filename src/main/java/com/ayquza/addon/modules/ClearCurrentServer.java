@@ -17,7 +17,7 @@ public class ClearCurrentServer extends Module {
     private final SettingGroup sgServerList = settings.createGroup("Server List");
 
     private final Setting<Keybind> removeKey = sgIngame.add(new KeybindSetting.Builder()
-        .name("remove-ingame-server-key")
+        .name("remove-server-ingame-key")
         .description("Key to remove the server you are currently connected to from the Multiplayer Server list.")
         .defaultValue(Keybind.fromKey(GLFW.GLFW_KEY_UNKNOWN))
         .build()
