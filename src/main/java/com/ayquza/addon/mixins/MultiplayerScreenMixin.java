@@ -88,13 +88,13 @@ public abstract class MultiplayerScreenMixin extends Screen {
     }
 
     @Inject(method = "keyPressed", at = @At("HEAD"))
-    private void onKeyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
+    private void onKeyPressed(net.minecraft.client.input.KeyInput event, CallbackInfoReturnable<Boolean> cir) {
         ClearCurrentServer module = Modules.get().get(ClearCurrentServer.class);
         if (module == null || !module.isActive()) return;
 
         Keybind keybind = module.getRemoveSelectedKey();
         if (keybind == null || !keybind.isSet()) return;
-        if (keyCode != keybind.getValue()) return;
+        if (keybind.getValue() != event.key()) return;
 
         if (serverListWidget == null) return;
         if (!(serverListWidget.getSelectedOrNull() instanceof MultiplayerServerListWidget.ServerEntry)) return;
