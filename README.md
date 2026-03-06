@@ -34,6 +34,7 @@ Join the community: [discord.gg/mlpi](https://dsc.gg/mlpi) — Credits: [@rbmkbl
 |---|---|
 | **Crash Command** | Crashes servers via stack overflow. *(from 0x06's Griefing Utils)* |
 | **Cracked Kick** | `.ckick` / `.cracked-kick` — kicks a player on cracked servers. *(from 0x06's Griefing Utils)* |
+| **AutoLavaCast+** | Advanced lava caster with 3 modes (Minimal, Expanded, Connected). Includes auto-refill & smart logic. [**Visual Guide**](https://imgur.com/a/nMBVwn9) (Imgur Link) *Majority of code and main logic from trouserstreaks*|
 
 ---
 
@@ -43,7 +44,7 @@ Join the community: [discord.gg/mlpi](https://dsc.gg/mlpi) — Credits: [@rbmkbl
 |---|---|
 | **Fake Disconnect** | Stay in-world after a disconnect. Shows the disconnect reason in chat. |
 | **Hotbar Stack Refill** | Refills hotbar stacks from inventory below a configurable threshold. Configurable delay and slot selection. |
-| **AirSignPlace** | Places a block at crosshair with an optional sign on top. |
+| **AirSignPlace** | Places a block at crosshair with an optional sign on top. *Uselesss now since trouserstreaks added a autoplace option to BetterAutoSign* |
 | **Custom Discord RPC** | Custom Rich Presence with configurable app ID, images, and status. In-game controls to update or restart. |
 | **Copy Server IP** | Copies the current server address to clipboard. |
 | **Current Clipboard HUD** | Displays clipboard contents as a HUD element. |
