@@ -92,53 +92,67 @@ public class CrackedKickModule extends Module {
         ClientConnection connection = new ClientConnection(NetworkSide.CLIENTBOUND);
 
         CompletableFuture.runAsync(() -> {
-            ChannelFuture future = ClientConnection.connect(address, mc.options.shouldUseNativeTransport(), connection);
-            future.awaitUninterruptibly(5000, TimeUnit.MILLISECONDS);
-
-            if (!future.isSuccess()) {
-                processingPlayers.remove(profile);
-                connection.disconnect(Text.literal("disconnect"));
-                return;
-            }
-
-            connection.connect(address.getHostName(), address.getPort(), new ClientLoginPacketListener() {
-                @Override
-                public void onCookieRequest(CookieRequestS2CPacket packet) {}
-
-                @Override
-                public void onHello(LoginHelloS2CPacket packet) {}
-
-                @Override
-                public void onSuccess(LoginSuccessS2CPacket packet) {}
-
-                @Override
-                public void onDisconnect(LoginDisconnectS2CPacket packet) {}
-
-                @Override
-                public void onCompression(LoginCompressionS2CPacket packet) {}
-
-                @Override
-                public void onQueryRequest(LoginQueryRequestS2CPacket packet) {}
-
-                @Override
-                public void onDisconnected(DisconnectionInfo info) {
-                    processingPlayers.remove(profile);
-                }
-
-                @Override
-                public boolean isConnectionOpen() {
-                    return connection.isOpen();
-                }
-            });
-
-            connection.send(new LoginHelloC2SPacket(profile.getName(), profile.getId()));
-
             try {
-                Thread.sleep(5000);
-            } catch (InterruptedException ignored) {}
+                ChannelFuture future = ClientConnection.connect(
+                    address, mc.options.shouldUseNativeTransport(), connection
+                );
+                future.awaitUninterruptibly(5000, TimeUnit.MILLISECONDS);
 
-            processingPlayers.remove(profile);
-            connection.disconnect(Text.literal("disconnect"));
+                if (!future.isSuccess()) return;
+
+
+                removeViaFabricPlusHandlers(future.channel().pipeline());
+
+                connection.connect(address.getHostName(), address.getPort(), new ClientLoginPacketListener() {
+                    @Override public void onCookieRequest(CookieRequestS2CPacket packet) {}
+                    @Override public void onHello(LoginHelloS2CPacket packet) {}
+                    @Override public void onSuccess(LoginSuccessS2CPacket packet) {}
+                    @Override public void onDisconnect(LoginDisconnectS2CPacket packet) {}
+                    @Override public void onCompression(LoginCompressionS2CPacket packet) {}
+                    @Override public void onQueryRequest(LoginQueryRequestS2CPacket packet) {}
+
+                    @Override
+                    public void onDisconnected(DisconnectionInfo info) {
+
+                    }
+
+                    @Override
+                    public boolean isConnectionOpen() {
+                        return connection.isOpen();
+                    }
+                });
+
+                connection.send(new LoginHelloC2SPacket(profile.getName(), profile.getId()));
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ignored) {}
+
+            } catch (Exception ignored) {
+                // Exception schlucken – finally sorgt für Cleanup
+            } finally {
+                // Wird IMMER ausgeführt, egal was passiert
+                processingPlayers.remove(profile);
+                if (connection.isOpen()) {
+                    connection.disconnect(Text.literal("disconnect"));
+                }
+            }
         });
+    }
+
+
+    private static void removeViaFabricPlusHandlers(io.netty.channel.ChannelPipeline pipeline) {
+        String[] handlerNames = {
+            "via-decoder", "via-encoder",
+            "via-handler", "via-packet-handler",
+            "viaversion-decoder", "viaversion-encoder"
+        };
+        for (String name : handlerNames) {
+            try {
+                if (pipeline.get(name) != null) {
+                    pipeline.remove(name);
+                }
+            } catch (Exception ignored) {}
+        }
     }
 }
