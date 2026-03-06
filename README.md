@@ -34,6 +34,7 @@ Join the community: [discord.gg/mlpi](https://dsc.gg/mlpi) — Credits: [@rbmkbl
 |---|---|
 | **Crash Command** | Crashes servers via stack overflow. *(from 0x06's Griefing Utils)* |
 | **Cracked Kick** | `.ckick` / `.cracked-kick` — kicks a player on cracked servers. *(from 0x06's Griefing Utils)* |
+| **AutoLavaCast+** | Advanced lava caster with 3 modes (Minimal, Expanded, Connected). Includes auto-refill & smart logic. [**Visual Guide**](https://imgur.com/a/nMBVwn9) (Imgur Link) |
 
 ---
 
