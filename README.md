@@ -1,152 +1,62 @@
 # Ayquza's Grief Utility Addon
-
-A comprehensive Meteor Client addon designed for utility and automation, built to work seamlessly with the MLPI Scanner. Join our community at [discord.gg/mlp1](https://dsc.gg/mlpi).
-
-**Credits:** Special thanks to [@rbmkblaze](https://github.com/rbmkblaze) for the login command implementation.
+A Meteor Client addon for utility and automation. Built to work with the MLPI Scanner.
+Join the community: [discord.gg/mlpi](https://dsc.gg/mlpi) — Credits: [@rbmkblaze](https://github.com/rbmkblaze) for the login command.
 
 ---
 
-## Core Features
+## Account & Authentication
 
-### Login Command
-Quickly authenticate to cracked servers using the `.login` command (alias: `.l`).
-
-**Usage:**
-```
-.login <username>
-.l <username>
-```
-
-**Additional Commands:**
-- `.login clear` - Remove all cracked accounts from the account manager
-- `.login random` - Connect with a random account
-- `.login remove` - Remove an account from the list
-- `.login list` - Display all saved accounts
-
-The command automatically reconnects you after switching accounts.
-
-
-
-### Login Command Keybind
-Bind a key to instantly login with the username currently in your clipboard. When triggered, executes `.login <clipboard>` automatically.
-
-Includes an optional auto-reconnect feature (enabled by default).
-
-
-
-### Fake Disconnect
-Remain in the world after being disconnected from the server instead of being sent to the menu. Allows you to continue viewing the world, though server interaction is disabled.
-
-The module displays the actual disconnect reason in chat. Useful for taking screenshots of builds or exploring the world state before leaving.
-
-
-
-### Quick Join Buttons
-Three Quick Join buttons added to:
-- Multiplayer Menu
-- Game Menu  
-- Disconnect Screen
-
-Copy a server IP to your clipboard and press Quick Join to connect instantly.
-
-
-
-### Hotbar Stack Refill
-Automatically refills hotbar stacks from your main inventory when they drop below a configurable threshold. 
-For TrouserStreaks AutoMountain Module because I couldn't figure out how to do it with trouserstreaks! 
-
-
-**Settings:**
-- Threshold slider (1-64) - Refills stacks below this count
-- Delay between refills (0-20 ticks)
-- All hotbar slots mode or selected slot only
-
-
-
-### AirSignPlace
-Places a block where your crosshair is pointing at and optionally a sign on top.
-(AirPlace from meteor with the addition to automatically place a sign on top)
-
-
-
-### Quick Join Keybind
-Bind a key to connect to the server IP in your clipboard. No need to navigate through menus.
-
-
-
-### Clipboard Reconnect Button
-Adds a reconnect button to the disconnect screen that uses your clipboard content as the username. Located below the standard Quick Join button.
-
-Use case: Getting kicked for not being whitelisted? Copy a valid username, press Clipboard Reconnect, and rejoin immediately.
-
-
-
-### Search function for Server names and Server MOTD'S
-Added two search fields to the bottom-left of the Multiplayer screen. One field filters servers by name, the other filters by MOTD (server description). The list updates in real-time as you type.
-
-
-
-### Crash Command 
-Command Complete Crash. Crashes servers using a stack overflow.
-
-From 0x06's Griefing Utils
-
-
-
-### Cracked Kick Command & Module 
-Kicks a player on a cracked server. Configure with the module that has the same name.
-Command: .ckick / .cracked-kick
-
-From 0x06's Griefing Utils
-
-
-
-### Player Name Cycler
-Automatically cycles through all online player names on the current server, logging in with each name and reconnecting.
-
-
-**Features:**
-- Optional stop when an OP account is detected
-- Configurable hotkey to start/stop cycling
-- Adjustable reconnect delay between account switches
-- Automatically adds missing accounts to your account manager
-- Debug mode for detailed logging
-
-**Suggested by:** once_oh
-
-
-### Custom Discord RPC
-Configure custom Discord Rich Presence for the addon with your own application ID, images, and status text.
-
-Includes in-game controls to update, restart, or test the RPC connection directly from Meteor settings.
+| Module | Description |
+|---|---|
+| **Login Command** | `.login <user>` / `.l <user>` — authenticate on cracked servers. Subcommands: `clear`, `random`, `remove`, `list`. Auto-reconnects after switching. |
+| **Login Command Keybind** | Instantly executes `.login <clipboard>`. Optional auto-reconnect. |
+| **Clipboard Reconnect Button** | Adds a button to the disconnect screen that reconnects using the clipboard as username. |
+| **Account Manager Keybind** | Opens the Meteor account manager via a configurable keybind. |
+| **Player Name Cycler** | Cycles through all online player names, logging in with each. Optionally stops on OP detection. Configurable delay and hotkey. |
+| **Clear Cracked Accounts** | Periodically removes cracked accounts on a configurable interval (1–60 min). Optional debug logging. |
 
 ---
 
+## Server Navigation
 
-## Additional kinda useless Utilities
+| Module | Description |
+|---|---|
+| **Quick Join** | Adds Quick Join buttons to the Multiplayer Menu, Game Menu, and Disconnect Screen. Connects to the clipboard IP instantly. |
+| **Quick Join Keybind** | Binds a key to connect to the clipboard IP without navigating menus. |
+| **Server Search** | Adds real-time name and MOTD search fields to the Multiplayer screen. |
+| **Clear Current Server** | Keybind to remove the connected server or the selected server in the list from your saved list. |
 
-- **Copy Server IP** - Quick copy current server address
-- **Current Clipboard HUD** - Display clipboard contents on your HUD
-- **Meteor Account Manager Keybind** - Bind a key to open the account manager
-- **Disconnect Screenshot** *(largely obsolete due to Fake Disconnect module)*
+---
+
+## Griefing
+
+| Module | Description |
+|---|---|
+| **Crash Command** | Crashes servers via stack overflow. *(from 0x06's Griefing Utils)* |
+| **Cracked Kick** | `.ckick` / `.cracked-kick` — kicks a player on cracked servers. *(from 0x06's Griefing Utils)* |
+
+---
+
+## Utilities
+
+| Module | Description |
+|---|---|
+| **Fake Disconnect** | Stay in-world after a disconnect. Shows the disconnect reason in chat. |
+| **Hotbar Stack Refill** | Refills hotbar stacks from inventory below a configurable threshold. Configurable delay and slot selection. |
+| **AirSignPlace** | Places a block at crosshair with an optional sign on top. |
+| **Custom Discord RPC** | Custom Rich Presence with configurable app ID, images, and status. In-game controls to update or restart. |
+| **Copy Server IP** | Copies the current server address to clipboard. |
+| **Current Clipboard HUD** | Displays clipboard contents as a HUD element. |
 
 ---
 
 ## Installation
 
 1. Download the latest release
-2. Place the JAR file in your `.minecraft/mods` folder
-3. Launch Minecraft with Meteor Client installed
-4. Configure the addon modules in the Meteor Client menu
-
----
-
-## Contributing
-
-Found a bug or have a feature suggestion? Contact me on Discord: **@Ayquza**
+2. Place the JAR in `.minecraft/mods`
+3. Launch Minecraft with Meteor Client
 
 ---
 
 ## License & Credits
-
-If you use or reference code from this project, please provide proper credit to both Ayquza and [@rbmkblaze](https://github.com/rbmkblaze).
+If you use code from this project, credit both **Ayquza** and [@rbmkblaze](https://github.com/rbmkblaze).
