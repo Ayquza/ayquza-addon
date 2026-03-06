@@ -868,7 +868,7 @@ public class AutoLavaCast extends Module {
                     target = Vec3d.ofBottomCenter(fourWayStartPos).add(0, 0.25, 0);
                 }
 
-                double dist = mc.player.getPos().distanceTo(target);
+                double dist = new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ()).distanceTo(target);
                 if (dist < (returnSpeed.get() + 0.1)) {
                     isReturning = false;
                     mc.player.setVelocity(0, 0, 0);
@@ -895,7 +895,7 @@ public class AutoLavaCast extends Module {
                         fourWayStage++;
                     }
                 } else {
-                    Vec3d dir = target.subtract(mc.player.getPos()).normalize();
+                    Vec3d dir = target.subtract(new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ())).normalize();
                     mc.player.setVelocity(dir.x * returnSpeed.get(), dir.y * returnSpeed.get(), dir.z * returnSpeed.get());
                 }
                 return;
