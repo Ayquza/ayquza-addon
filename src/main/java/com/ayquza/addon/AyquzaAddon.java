@@ -61,6 +61,8 @@ public class AyquzaAddon extends MeteorAddon {
         System.out.println("[AyquzaAddon] ClearCrackedAccounts module registered!");
         Modules.get().add(new ClearCurrentServer());
         System.out.println("[AyquzaAddon] ClearCurrentServer module registered!");
+        Modules.get().add(new AutoLavaCast());
+        System.out.println("[AyquzaAddon] AutoLavaCast module registered!");
 
 
 
