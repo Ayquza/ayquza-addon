@@ -5,7 +5,7 @@ import com.mojang.authlib.GameProfile;
 
 
 import io.netty.channel.ChannelFuture;
-import net.minecraft.network.NetworkingBackend;
+
 import net.minecraft.network.DisconnectionInfo;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.BoolSetting;
@@ -20,6 +20,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
+import net.minecraft.network.NetworkingBackend;
 import net.minecraft.network.listener.ClientLoginPacketListener;
 import net.minecraft.network.packet.c2s.login.LoginHelloC2SPacket;
 import net.minecraft.network.packet.s2c.common.CookieRequestS2CPacket;
@@ -92,53 +93,59 @@ public class CrackedKickModule extends Module {
         ClientConnection connection = new ClientConnection(NetworkSide.CLIENTBOUND);
 
         CompletableFuture.runAsync(() -> {
-            ChannelFuture future = ClientConnection.connect(address, NetworkingBackend.remote(mc.options.shouldUseNativeTransport()), connection);
-            future.awaitUninterruptibly(5000, TimeUnit.MILLISECONDS);
-
-            if (!future.isSuccess()) {
-                processingPlayers.remove(profile);
-                connection.disconnect(Text.literal("disconnect"));
-                return;
-            }
-
-            connection.connect(address.getHostName(), address.getPort(), new ClientLoginPacketListener() {
-                @Override
-                public void onCookieRequest(CookieRequestS2CPacket packet) {}
-
-                @Override
-                public void onHello(LoginHelloS2CPacket packet) {}
-
-                @Override
-                public void onSuccess(LoginSuccessS2CPacket packet) {}
-
-                @Override
-                public void onDisconnect(LoginDisconnectS2CPacket packet) {}
-
-                @Override
-                public void onCompression(LoginCompressionS2CPacket packet) {}
-
-                @Override
-                public void onQueryRequest(LoginQueryRequestS2CPacket packet) {}
-
-                @Override
-                public void onDisconnected(DisconnectionInfo info) {
-                    processingPlayers.remove(profile);
-                }
-
-                @Override
-                public boolean isConnectionOpen() {
-                    return connection.isOpen();
-                }
-            });
-
-            connection.send(new LoginHelloC2SPacket(profile.name(), profile.id()));
-
             try {
-                Thread.sleep(5000);
-            } catch (InterruptedException ignored) {}
+                NetworkingBackend backend = NetworkingBackend.remote(mc.options.shouldUseNativeTransport());
+                ChannelFuture future = ClientConnection.connect(address, backend, connection);
+                future.awaitUninterruptibly(5000, TimeUnit.MILLISECONDS);
 
-            processingPlayers.remove(profile);
-            connection.disconnect(Text.literal("disconnect"));
+                if (!future.isSuccess()) return;
+
+                removeViaFabricPlusHandlers(future.channel().pipeline());
+
+                connection.connect(address.getHostName(), address.getPort(), new ClientLoginPacketListener() {
+                    @Override public void onCookieRequest(CookieRequestS2CPacket packet) {}
+                    @Override public void onHello(LoginHelloS2CPacket packet) {}
+                    @Override public void onSuccess(LoginSuccessS2CPacket packet) {}
+                    @Override public void onDisconnect(LoginDisconnectS2CPacket packet) {}
+                    @Override public void onCompression(LoginCompressionS2CPacket packet) {}
+                    @Override public void onQueryRequest(LoginQueryRequestS2CPacket packet) {}
+                    @Override public void onDisconnected(DisconnectionInfo info) {}
+
+                    @Override
+                    public boolean isConnectionOpen() {
+                        return connection.isOpen();
+                    }
+                });
+
+                // NEU: profile.name() und profile.id() statt getName()/getId()
+                connection.send(new LoginHelloC2SPacket(profile.name(), profile.id()));
+
+                Thread.sleep(5000);
+
+            } catch (InterruptedException ignored) {
+            } catch (Exception ignored) {
+            } finally {
+                processingPlayers.remove(profile);
+                if (connection.isOpen()) {
+                    connection.disconnect(Text.literal("disconnect"));
+                }
+            }
         });
+    }
+
+
+    private static void removeViaFabricPlusHandlers(io.netty.channel.ChannelPipeline pipeline) {
+        String[] handlerNames = {
+            "via-decoder", "via-encoder",
+            "via-handler", "via-packet-handler",
+            "viaversion-decoder", "viaversion-encoder"
+        };
+        for (String name : handlerNames) {
+            try {
+                if (pipeline.get(name) != null) {
+                    pipeline.remove(name);
+                }
+            } catch (Exception ignored) {}
+        }
     }
 }
