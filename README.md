@@ -44,7 +44,7 @@ Join the community: [discord.gg/mlpi](https://dsc.gg/mlpi) — Credits: [@rbmkbl
 |---|---|
 | **Fake Disconnect** | Stay in-world after a disconnect. Shows the disconnect reason in chat. |
 | **Hotbar Stack Refill** | Refills hotbar stacks from inventory below a configurable threshold. Configurable delay and slot selection. |
-| **AirSignPlace** | Places a block at crosshair with an optional sign on top. |
+| **AirSignPlace** | Places a block at crosshair with an optional sign on top. *Uselesss now since trouserstreaks added a autoplace option to BetterAutoSign* |
 | **Custom Discord RPC** | Custom Rich Presence with configurable app ID, images, and status. In-game controls to update or restart. |
 | **Copy Server IP** | Copies the current server address to clipboard. |
 | **Current Clipboard HUD** | Displays clipboard contents as a HUD element. |
