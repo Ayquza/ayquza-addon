@@ -15,7 +15,7 @@ import java.util.Collection;
 
 public class CrackedKickCommand extends Command {
     public CrackedKickCommand() {
-        super("cracked-kick", "Kicks a player on a cracked server. Configure with the module that has the same name.", "ckick");
+        super("cracked-kick", "Kicks a player on a cracked server by sending a fake connecting with their name. Configure with the module that has the same name.", "ckick");
     }
 
     @Override

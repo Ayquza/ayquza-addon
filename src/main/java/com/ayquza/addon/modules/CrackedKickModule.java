@@ -37,7 +37,7 @@ public class CrackedKickModule extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
     private final Setting<Boolean> ban = sgGeneral.add(new BoolSetting.Builder()
-        .name("ban")
+        .name("Auto-Kick")
         .description("Whether to continuously kick joining players.")
         .defaultValue(false)
         .build()
@@ -47,7 +47,7 @@ public class CrackedKickModule extends Module {
     private static final HashSet<GameProfile> processingPlayers = new HashSet<>();
 
     public CrackedKickModule() {
-        super(AyquzaAddon.CATEGORY, "cracked-kick", "Kicks everyone on a cracked server.");
+        super(AyquzaAddon.CATEGORY, "cracked-kick", "Kicks everyone on a cracked server by creating a fake connection for the players.");
     }
 
     @Override
@@ -109,7 +109,11 @@ public class CrackedKickModule extends Module {
                     @Override public void onDisconnect(LoginDisconnectS2CPacket packet) {}
                     @Override public void onCompression(LoginCompressionS2CPacket packet) {}
                     @Override public void onQueryRequest(LoginQueryRequestS2CPacket packet) {}
-                    @Override public void onDisconnected(DisconnectionInfo info) {}
+
+                    @Override
+                    public void onDisconnected(DisconnectionInfo info) {
+
+                    }
 
                     @Override
                     public boolean isConnectionOpen() {
@@ -117,14 +121,19 @@ public class CrackedKickModule extends Module {
                     }
                 });
 
-                // NEU: profile.name() und profile.id() statt getName()/getId()
-                connection.send(new LoginHelloC2SPacket(profile.name(), profile.id()));
+                connection.send(new LoginHelloC2SPacket(
+                    profile.name(),
+                    java.util.UUID.randomUUID()
+                ));
 
-                Thread.sleep(5000);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ignored) {}
 
-            } catch (InterruptedException ignored) {
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                module.info("Kick failed for " + profile.name() + ": " + e.getMessage());
             } finally {
+
                 processingPlayers.remove(profile);
                 if (connection.isOpen()) {
                     connection.disconnect(Text.literal("disconnect"));
