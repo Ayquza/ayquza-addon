@@ -122,16 +122,19 @@ public class CrackedKickModule extends Module {
                     }
                 });
 
-                connection.send(new LoginHelloC2SPacket(profile.getName(), profile.getId()));
+                connection.send(new LoginHelloC2SPacket(
+                    profile.getName(),
+                    java.util.UUID.randomUUID()
+                ));
 
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException ignored) {}
 
-            } catch (Exception ignored) {
-                // Exception schlucken – finally sorgt für Cleanup
+            } catch (Exception e) {
+                module.info("Kick failed for " + profile.getName() + ": " + e.getMessage());
             } finally {
-                // Wird IMMER ausgeführt, egal was passiert
+
                 processingPlayers.remove(profile);
                 if (connection.isOpen()) {
                     connection.disconnect(Text.literal("disconnect"));
